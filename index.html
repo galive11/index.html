@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>منصة البث المباشر</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; padding: 0;
+            background-color: #0d1117; color: #ffffff;
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex; flex-direction: column; min-height: 100vh;
+        }
+        #video-container { width: 100%; background: #000; aspect-ratio: 16/9; }
+        video { width: 100%; height: 100%; object-fit: contain; }
+        .stream-info { padding: 12px; background: #161b22; border-bottom: 1px solid #30363d; font-size: 14px; text-align: center; }
+        #ad-zone { flex-grow: 1; margin-top: auto; padding: 10px; background: #0d1117; text-align: center; }
+        .ad-title { font-size: 11px; color: #8b949e; margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+
+    <div id="video-container">
+        <video id="video" controls autoplay muted playsinline></video>
+    </div>
+
+    <div class="stream-info">
+        🔴 **بث مباشر شغال الآن**
+    </div>
+
+    <div id="ad-zone">
+        <div class="ad-title">إعلان داعم للبث المباشر</div>
+        <div id="monetag-container"></div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const streamUrl = urlParams.get('stream');
+        const streamerId = urlParams.get('streamer_id') || 'default_streamer';
+
+        if (streamUrl) {
+            const video = document.getElementById('video');
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(streamUrl);
+                hls.attachMedia(video);
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = streamUrl;
+            }
+        }
+
+        // استبدل YOUR_ZONE_ID بالرقم الخاص بك من حساب Monetag
+        const YOUR_ZONE_ID = "1234567"; 
+        
+        const adScript = document.createElement('script');
+        adScript.src = `https://alwingulla.com/zone?id=${YOUR_ZONE_ID}&subid=${streamerId}`;
+        adScript.async = true;
+        document.getElementById('monetag-container').appendChild(adScript);
+    </script>
+</body>
+</html>
