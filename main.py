@@ -3,7 +3,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppI
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 # --- الإعدادات والبيانات الخاصة بك ---
-BOT_TOKEN = "8832825150:AAGV8erQJUD7_ZJLUTONSGOmFvpF1S8iA"
+BOT_TOKEN = "8832825150:AAGV8erQJUD7_ZJLUTONSGOmFvpF1S8iAsU"
 ADMIN_ID = 1957078158
 WEB_APP_BASE_URL = "https://galive11.github.io/index.html/"
 CHANNEL_USERNAME = "@Jilouka_Streams"  # قناة الاشتراك الإجباري
@@ -50,7 +50,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- لوحة التحكم والأوامر للأدمن فقط ---
 async def add_streamer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
-        await update.message.reply_text("⚠️ هذا الأمر مخصص للأدمن فقط.")
+        await update.message.reply_text("⚠️️ هذا الأمر مخصص للأدمن فقط.")
         return
 
     if len(context.args) < 2:
@@ -81,7 +81,7 @@ async def remove_streamer(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def list_streamers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
-        await update.message.reply_text("⚠️️ هذا الأمر مخصص للأدمن فقط.")
+        await update.message.reply_text("⚠ هذا الأمر مخصص للأدمن فقط.")
         return
 
     if not streamers_db:
@@ -97,7 +97,7 @@ async def list_streamers(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     if not await is_subscribed(user.id, context):
-        await update.message.reply_text("⚠️️ يرجى الاشتراك في القناة أولاً لتتمكن من استخدام البوت.")
+        await update.message.reply_text("⚠ يرجى الاشتراك في القناة أولاً لتتمكن من استخدام البوت.")
         return
 
     query_username = update.message.text.strip().lower().replace("@", "")
