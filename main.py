@@ -1,22 +1,39 @@
+import os
 import logging
+from threading import Thread
+from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+
+# --- إنشاء خادم ويب وهمي لإرضاء Render مجاناً ---
+web_app = Flask('')
+
+@web_app.route('/')
+def home():
+    return "Bot is running live!"
+
+def run_flask():
+    # Render يمرر PORT تلقائياً عبر البيئة
+    port = int(os.environ.get("PORT", 8080))
+    web_app.run(host='0.0.0.0', port=port)
+
+def keep_alive():
+    t = Thread(target=run_flask)
+    t.daemon = True
+    t.start()
 
 # --- الإعدادات والبيانات الخاصة بك ---
 BOT_TOKEN = "8832825150:AAEIINN3SmeucO0qQ4DalJ-dJTdsxI_L6LY"
 ADMIN_ID = 1957078158
 WEB_APP_BASE_URL = "https://galive11.github.io/index.html/"
-CHANNEL_USERNAME = "@Jilouka_Streams"  # قناة الاشتراك الإجباري
+CHANNEL_USERNAME = "@Jilouka_Streams"
 
-# تهيئة سجل التشغيل (Logging)
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
-# قاعدة بيانات مؤقتة لتخزين الستريمرز وروابط البث
 streamers_db = {}
 
-# --- وظيفة التحقق من الاشتراك في القناة ---
 async def is_subscribed(user_id: int, context: ContextTypes.DEFAULT_TYPE) -> bool:
     try:
         member = await context.bot.get_chat_member(chat_id=CHANNEL_USERNAME, user_id=user_id)
@@ -25,10 +42,8 @@ async def is_subscribed(user_id: int, context: ContextTypes.DEFAULT_TYPE) -> boo
         logging.error(f"Error checking subscription: {e}")
         return True
 
-# --- أمر البداية /start ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
-    
     if not await is_subscribed(user.id, context):
         keyboard = [
             [InlineKeyboardButton("📢 اشترك في القناة أولاً", url=f"https://t.me/{CHANNEL_USERNAME.replace('@', '')}")],
@@ -47,7 +62,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     await update.message.reply_text(welcome_text, parse_mode="Markdown")
 
-# --- لوحة التحكم والأوامر للأدمن فقط ---
 async def add_streamer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
         await update.message.reply_text("⚠️ هذا الأمر مخصص للأدمن فقط.")
@@ -93,7 +107,6 @@ async def list_streamers(update: Update, context: ContextTypes.DEFAULT_TYPE):
         msg += f"• `@{user}` -> {url}\n"
     await update.message.reply_text(msg, parse_mode="Markdown")
 
-# --- معالجة أرسال اسم الستريمر من المستخدم ---
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     if not await is_subscribed(user.id, context):
@@ -122,24 +135,20 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode="Markdown"
         )
 
-# --- تشغيل التطبيق ---
 def main():
+    # تشغيل سيرفر Flask الموازي لمنع إغلاق الخدمة المجانية
+    keep_alive()
+
     app = Application.builder().token(BOT_TOKEN).build()
 
-    # الأوامر العامة
     app.add_handler(CommandHandler("start", start))
-
-    # أوامر الأدمن
     app.add_handler(CommandHandler("add", add_streamer))
     app.add_handler(CommandHandler("remove", remove_streamer))
     app.add_handler(CommandHandler("list", list_streamers))
-
-    # الرسائل النصية والبحث
     app.add_handler(CommandHandler("help", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     logging.info("البوت يعمل الآن...")
-    # إغلاق أي جلسات معلقة أو متداخلة تلقائياً
     app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
