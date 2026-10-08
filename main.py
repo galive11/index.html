@@ -1,4 +1,5 @@
 import os
+import json
 import logging
 from threading import Thread
 from flask import Flask
@@ -24,17 +25,38 @@ def keep_alive():
 # --- الإعدادات ---
 BOT_TOKEN = "8832825150:AAEIINN3SmeucO0qQ4DalJ-dJTdsxI_L6LY"
 ADMIN_ID = 1957078158
-# 🎯 تعديل الرابط ليشير إلى ملف index.html مباشرة لمنع خطأ 404
 WEB_APP_BASE_URL = "https://galive11.github.io/index.html"
 CHANNEL_USERNAME = "@Jilouka_Streams"
+DATA_FILE = "data.json"
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
-# قواعد البيانات المؤقتة
-streamers_db = {}       # { "streamer_username": "kick_channel_name" }
-approved_streamers = {} # { streamer_user_id: "streamer_username" }
+# --- نظام حفظ وقراءة البيانات تلقائياً دائمياً ---
+def load_data():
+    if os.path.exists(DATA_FILE):
+        try:
+            with open(DATA_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                approved = {int(k): v for k, v in data.get("approved_streamers", {}).items()}
+                return data.get("streamers_db", {}), approved
+        except Exception as e:
+            logging.error(f"Error loading data: {e}")
+    return {}, {}
+
+def save_data():
+    try:
+        with open(DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump({
+                "streamers_db": streamers_db,
+                "approved_streamers": approved_streamers
+            }, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logging.error(f"Error saving data: {e}")
+
+# تحميل البيانات المحفوظة عند بدء البوت
+streamers_db, approved_streamers = load_data()
 
 async def is_subscribed(user_id: int, context: ContextTypes.DEFAULT_TYPE) -> bool:
     try:
@@ -80,9 +102,9 @@ async def authorize_streamer(update: Update, context: ContextTypes.DEFAULT_TYPE)
         st_id = int(context.args[0])
         st_name = context.args[1].lower().replace("@", "")
         approved_streamers[st_id] = st_name
-        # إعطاء قناة تلقائية بنفس الاسم مباشرة
         streamers_db[st_name] = st_name
-        await update.message.reply_text(f"✅ تم اعتماد الستريمر `@{st_name}` برقم الآيدي `{st_id}` بنجاح!", parse_mode="Markdown")
+        save_data() # حفظ في الملف تلقائياً
+        await update.message.reply_text(f"✅ تم اعتماد الستريمر `@{st_name}` برقم الآيدي `{st_id}` بنجاح وحفظ البيانات!", parse_mode="Markdown")
     except ValueError:
         await update.message.reply_text("❌ يرجى إدخال Telegram User ID بشكل رقمي صحيح.")
 
@@ -99,6 +121,7 @@ async def add_streamer_admin(update: Update, context: ContextTypes.DEFAULT_TYPE)
     username = context.args[0].lower().replace("@", "")
     kick_channel = context.args[1].lower().replace("@", "")
     streamers_db[username] = kick_channel
+    save_data() # حفظ في الملف تلقائياً
     await update.message.reply_text(f"✅ تم ربط الستريمر `@{username}` بقناة Kick: `{kick_channel}` بنجاح!", parse_mode="Markdown")
 
 async def remove_streamer(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -113,6 +136,7 @@ async def remove_streamer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = context.args[0].lower().replace("@", "")
     if username in streamers_db:
         del streamers_db[username]
+        save_data() # حفظ التغييرات دائمياً
         await update.message.reply_text(f"🗑 تم إيقاف وحذف بث `@{username}`.")
     else:
         await update.message.reply_text("⚠️ اسم الستريمر غير موجود.")
@@ -148,13 +172,13 @@ async def set_channel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     kick_channel = context.args[0].lower().replace("@", "")
 
     streamers_db[st_name] = kick_channel
+    save_data() # حفظ البيانات تلقائياً
     await update.message.reply_text(
         f"🎉 **تم ربط قناتك بنجاح!**\nاسم حسابه بالبوت: `@{st_name}`\nقناة Kick: `{kick_channel}`\n\nالان بمجرد بدء البث من PRISM سيظهر بثك تلقائياً للمتابعين عبر الميني أب!",
         parse_mode="Markdown"
     )
 
 async def set_live(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """أمر إضافي للتوافقية لربط اسم القناة أو الرابط"""
     await set_channel(update, context)
 
 # --- معالجة الرسائل والبحث للمتابعين ---
@@ -167,19 +191,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     query_username = update.message.text.strip().lower().replace("@", "")
 
-    # البحث في قائمة البثوث المباشرة أو الستريمرز المعتمدين
     kick_channel = None
     if query_username in streamers_db:
         kick_channel = streamers_db[query_username]
     else:
-        # البحث في قائمة الستريمرز المعتمدين إذا لم يربط القناة بعد
         for st_id, st_name in approved_streamers.items():
             if st_name.lower() == query_username:
                 kick_channel = query_username
                 break
 
     if kick_channel:
-        # تركيب الرابط الصحيح المباشر مع ملف index.html بدون سلاش زائدة
         web_app_full_url = f"{WEB_APP_BASE_URL}?streamer={kick_channel}"
 
         keyboard = [
@@ -201,24 +222,20 @@ def main():
 
     app = Application.builder().token(BOT_TOKEN).build()
 
-    # الأوامر العامة
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", start))
 
-    # أوامر الأدمن
     app.add_handler(CommandHandler("auth", authorize_streamer))
     app.add_handler(CommandHandler("add", add_streamer_admin))
     app.add_handler(CommandHandler("remove", remove_streamer))
     app.add_handler(CommandHandler("list", list_streamers))
 
-    # أوامر الستريمرز
     app.add_handler(CommandHandler("setchannel", set_channel))
     app.add_handler(CommandHandler("setlive", set_live))
 
-    # البحث
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    logging.info("البوت يعمل الآن بنظام الستريمرز المستقلين والربط التلقائي عبر Kick...")
+    logging.info("البوت يعمل بنجاح مع حفظ البيانات التلقائي...")
     app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
