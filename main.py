@@ -24,7 +24,8 @@ def keep_alive():
 # --- الإعدادات ---
 BOT_TOKEN = "8832825150:AAEIINN3SmeucO0qQ4DalJ-dJTdsxI_L6LY"
 ADMIN_ID = 1957078158
-WEB_APP_BASE_URL = "https://galive11.github.io"
+# 🎯 تعديل الرابط ليشير إلى ملف index.html مباشرة لمنع خطأ 404
+WEB_APP_BASE_URL = "https://galive11.github.io/index.html"
 CHANNEL_USERNAME = "@Jilouka_Streams"
 
 logging.basicConfig(
@@ -171,15 +172,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if query_username in streamers_db:
         kick_channel = streamers_db[query_username]
     else:
-        # البحث في قائمة الستريمرز المعتمدين إذا لم يحدد قناة أخر بشكل خاص
+        # البحث في قائمة الستريمرز المعتمدين إذا لم يربط القناة بعد
         for st_id, st_name in approved_streamers.items():
             if st_name.lower() == query_username:
                 kick_channel = query_username
                 break
 
     if kick_channel:
-        # رابط الميني أب المباشر
-        web_app_full_url = f"{WEB_APP_BASE_URL}/?streamer={kick_channel}"
+        # تركيب الرابط الصحيح المباشر مع ملف index.html بدون سلاش زائدة
+        web_app_full_url = f"{WEB_APP_BASE_URL}?streamer={kick_channel}"
 
         keyboard = [
             [InlineKeyboardButton("📺 مشاهدة البث المباشر الآن", web_app=WebAppInfo(url=web_app_full_url))]
