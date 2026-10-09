@@ -45,39 +45,35 @@
 </head>
 <body>
 
-  <!-- 1. حاوية الإعلانات (Adsterra) -->
+  <!-- 1. حاوية إعلانات Adsterra -->
   <div id="ad-container">
-    <!-- ضع كود إعلانات Adsterra المتجدد هنا -->
+    <script data-cfasync="false" src="https://bicea.org/14/664c4c28023577c68e9439b9764e7610"></script>
   </div>
 
-  <!-- 2. حاوية مشغل البث -->
+  <!-- 2. حاوية مشغل البث (Twitch) -->
   <div id="player-container">
     <iframe 
-      id="kick-player" 
+      id="twitch-player" 
       allowfullscreen="true" 
       scrolling="no"
-      referrerpolicy="no-referrer-when-downgrade"
-      sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
       allow="autoplay; fullscreen; encrypted-media">
     </iframe>
   </div>
 
   <script>
-    // 1. تهيئة تطبيق تلجرام
+    // تهيئة تطبيق تلجرام
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
     }
 
-    // 2. جلب اسم القناة وتنسيقه
+    // جلب اسم القناة من الرابط (الافتراضي 1stremer_1)
     const urlParams = new URLSearchParams(window.location.search);
     const streamer = (urlParams.get('streamer') || '1stremer_1').toLowerCase().trim();
 
-    // 3. بناء رابط التضمين المتوافق مع حماية Kick في الهواتف
-    const playerFrame = document.getElementById('kick-player');
-    
-    // استخدام الدومين المباشر الخاص بجيت هاب مع كسر قيود الأوريجن
-    const embedUrl = `https://player.kick.com/${streamer}?parent=galive11.github.io&autoplay=true&muted=false`;
+    // إعداد مشغل Twitch
+    const playerFrame = document.getElementById('twitch-player');
+    const embedUrl = `https://player.twitch.tv/?channel=${streamer}&parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org&autoplay=true&muted=false`;
     
     playerFrame.src = embedUrl;
   </script>
