@@ -4,13 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>بثوث مباشرة جيلوكا</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * {
       box-sizing: border-box;
-    }
-    body, html {
       margin: 0;
       padding: 0;
+    }
+    body, html {
       width: 100%;
       height: 100%;
       background-color: #0d0f12;
@@ -39,17 +40,15 @@
       border: none;
     }
   </style>
-  <!-- مكتبة تلجرام ميني أب -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
-  <!-- حاوية الإعلانات (Adsterra) -->
+  <!-- حاوية إعلانات Adsterra -->
   <div id="ad-container">
-    <!-- ضع كود Adsterra الخاص بك هنا -->
+    <!-- ضع كود إعلان Adsterra الخاص بك هنا -->
   </div>
 
-  <!-- حاوية مشغل البث -->
+  <!-- حاوية المشغل -->
   <div id="player-container">
     <iframe 
       id="kick-player" 
@@ -60,24 +59,22 @@
   </div>
 
   <script>
-    // تهيئة تطبيق تلجرام ميني أب
+    // 1. تهيئة وتثبيت تطبيق تلجرام ميني أب
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
     }
 
-    // 1. استخراج اسم الستريمر من رابط البوت
+    // 2. قراءة اسم الستريمر الممرر من البوت
     const urlParams = new URLSearchParams(window.location.search);
     const streamer = (urlParams.get('streamer') || '1stremer_1').toLowerCase().trim();
 
-    // 2. الحصول على النطاق الحالي ديناميكياً لتفادي حظر Kick
-    const currentHostname = window.location.hostname || 'galive11.github.io';
+    // 3. تحديد الدومين الدقيق لـ GitHub Pages
+    const parentDomain = "galive11.github.io";
 
-    // 3. بناء رابط المشغل المعتمد مع تمرير كافة النطاقات المسموحة
+    // 4. بناء رابط المشغل بالصيغة المعتمدة لدى Kick
     const playerFrame = document.getElementById('kick-player');
-    const embedUrl = `https://player.kick.com/${streamer}?parent=${currentHostname}&parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org`;
-
-    playerFrame.src = embedUrl;
+    playerFrame.src = `https://player.kick.com/${streamer}?parent=${parentDomain}&autoplay=true`;
   </script>
 
 </body>
