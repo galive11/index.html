@@ -18,6 +18,7 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      font-family: system-ui, -apple-system, sans-serif;
     }
     #ad-container {
       width: 100%;
@@ -27,6 +28,7 @@
       justify-content: center;
       align-items: center;
       z-index: 10;
+      border-bottom: 1px solid #2b2f3a;
     }
     #player-container {
       flex: 1;
@@ -43,38 +45,41 @@
 </head>
 <body>
 
-  <!-- حاوية إعلانات Adsterra -->
+  <!-- 1. حاوية الإعلانات (Adsterra) -->
   <div id="ad-container">
-    <!-- ضع كود إعلان Adsterra الخاص بك هنا -->
+    <!-- ضع كود إعلانات Adsterra المتجدد هنا -->
   </div>
 
-  <!-- حاوية المشغل -->
+  <!-- 2. حاوية مشغل البث -->
   <div id="player-container">
     <iframe 
       id="kick-player" 
       allowfullscreen="true" 
       scrolling="no"
+      referrerpolicy="no-referrer-when-downgrade"
+      sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
       allow="autoplay; fullscreen; encrypted-media">
     </iframe>
   </div>
 
   <script>
-    // 1. تهيئة وتثبيت تطبيق تلجرام ميني أب
+    // 1. تهيئة تطبيق تلجرام
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
     }
 
-    // 2. قراءة اسم الستريمر الممرر من البوت
+    // 2. جلب اسم القناة وتنسيقه
     const urlParams = new URLSearchParams(window.location.search);
     const streamer = (urlParams.get('streamer') || '1stremer_1').toLowerCase().trim();
 
-    // 3. تحديد الدومين الدقيق لـ GitHub Pages
-    const parentDomain = "galive11.github.io";
-
-    // 4. بناء رابط المشغل بالصيغة المعتمدة لدى Kick
+    // 3. بناء رابط التضمين المتوافق مع حماية Kick في الهواتف
     const playerFrame = document.getElementById('kick-player');
-    playerFrame.src = `https://player.kick.com/${streamer}?parent=${parentDomain}&autoplay=true`;
+    
+    // استخدام الدومين المباشر الخاص بجيت هاب مع كسر قيود الأوريجن
+    const embedUrl = `https://player.kick.com/${streamer}?parent=galive11.github.io&autoplay=true&muted=false`;
+    
+    playerFrame.src = embedUrl;
   </script>
 
 </body>
