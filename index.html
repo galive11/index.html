@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>بثوث مباشرة جيلوكا</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body, html {
       margin: 0;
       padding: 0;
@@ -22,6 +25,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      z-index: 10;
     }
     #player-container {
       flex: 1;
@@ -37,26 +41,33 @@
 </head>
 <body>
 
-  <!-- حاوية الإعلانات -->
+  <!-- حاوية الإعلانات (Adsterra) -->
   <div id="ad-container">
-    <!-- كود إعلانات Adsterra هنا -->
+    <!-- ضع كود Adsterra الخاص بك هنا -->
   </div>
 
   <!-- حاوية المشغل -->
   <div id="player-container">
-    <iframe id="kick-player" allowfullscreen="true"></iframe>
+    <iframe 
+      id="kick-player" 
+      allowfullscreen="true" 
+      scrolling="no"
+      allow="autoplay; fullscreen">
+    </iframe>
   </div>
 
   <script>
-    // 1. استخراج اسم الستريمر من رابط URL
+    // 1. استخراج اسم الستريمر من رابط البوت
     const urlParams = new URLSearchParams(window.location.search);
     const streamer = (urlParams.get('streamer') || '1stremer_1').toLowerCase().trim();
 
-    // 2. إعداد مشغل Kick مع إضافة النطاق المعتمد (parent)
+    // 2. تحديث رابط مشغل Kick وتوفير نطاقات Parent متعددة للتوافق مع تلجرام
     const playerFrame = document.getElementById('kick-player');
     
-    // إرسال النطاق الخاص بـ GitHub Pages لتجنب خطأ Misconfigured
-    playerFrame.src = `https://player.kick.com/${streamer}?parent=galive11.github.io`;
+    // تمرير نطاق جيت هاب ونطاقات تلجرام لتفادي حظر Kick Embed
+    const embedUrl = `https://player.kick.com/${streamer}?parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org`;
+    
+    playerFrame.src = embedUrl;
   </script>
 
 </body>
