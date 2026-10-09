@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>بثوث مباشرة جيلوكا</title>
   <style>
     * {
@@ -31,6 +31,7 @@
       flex: 1;
       width: 100%;
       height: calc(100% - 80px);
+      position: relative;
     }
     iframe {
       width: 100%;
@@ -38,6 +39,8 @@
       border: none;
     }
   </style>
+  <!-- مكتبة تلجرام ميني أب -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
@@ -46,27 +49,34 @@
     <!-- ضع كود Adsterra الخاص بك هنا -->
   </div>
 
-  <!-- حاوية المشغل -->
+  <!-- حاوية مشغل البث -->
   <div id="player-container">
     <iframe 
       id="kick-player" 
       allowfullscreen="true" 
       scrolling="no"
-      allow="autoplay; fullscreen">
+      allow="autoplay; fullscreen; encrypted-media">
     </iframe>
   </div>
 
   <script>
+    // تهيئة تطبيق تلجرام ميني أب
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+
     // 1. استخراج اسم الستريمر من رابط البوت
     const urlParams = new URLSearchParams(window.location.search);
     const streamer = (urlParams.get('streamer') || '1stremer_1').toLowerCase().trim();
 
-    // 2. تحديث رابط مشغل Kick وتوفير نطاقات Parent متعددة للتوافق مع تلجرام
+    // 2. الحصول على النطاق الحالي ديناميكياً لتفادي حظر Kick
+    const currentHostname = window.location.hostname || 'galive11.github.io';
+
+    // 3. بناء رابط المشغل المعتمد مع تمرير كافة النطاقات المسموحة
     const playerFrame = document.getElementById('kick-player');
-    
-    // تمرير نطاق جيت هاب ونطاقات تلجرام لتفادي حظر Kick Embed
-    const embedUrl = `https://player.kick.com/${streamer}?parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org`;
-    
+    const embedUrl = `https://player.kick.com/${streamer}?parent=${currentHostname}&parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org`;
+
     playerFrame.src = embedUrl;
   </script>
 
