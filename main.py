@@ -25,7 +25,7 @@ def keep_alive():
 # --- الإعدادات ---
 BOT_TOKEN = "8832825150:AAEIINN3SmeucO0qQ4DalJ-dJTdsxI_L6LY"
 ADMIN_ID = 1957078158
-WEB_APP_BASE_URL = "https://galive11.github.io/index.html"
+WEB_APP_BASE_URL = "https://galive11.github.io/"
 CHANNEL_USERNAME = "@Jilouka_Streams"
 DATA_FILE = "data.json"
 
@@ -87,7 +87,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     welcome_text = (
         f"مرحباً بك {user.first_name} في منصة البثوث المباشرة! 📺✨\n\n"
         "• أرسل يوزر الستريمر للبحث عن بثه المباشر.\n"
-        "• للستريمر المعتمد: ربط قناة Kick عبر الأمر `/setchannel [اسم_القناة]`"
+        "• للستريمر المعتمد: ربط قناة Twitch عبر الأمر `/setchannel [اسم_القناة]`"
     )
     await update.message.reply_text(welcome_text, parse_mode="Markdown")
 
@@ -118,14 +118,14 @@ async def add_streamer_admin(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return
 
     if len(context.args) < 2:
-        await update.message.reply_text("❌ استخدم:\n`/add [streamer_username] [kick_channel_name]`", parse_mode="Markdown")
+        await update.message.reply_text("❌ استخدم:\n`/add [streamer_username] [twitch_channel_name]`", parse_mode="Markdown")
         return
 
     username = context.args[0].lower().replace("@", "")
-    kick_channel = context.args[1].lower().replace("@", "")
-    streamers_db[username] = kick_channel
+    twitch_channel = context.args[1].lower().replace("@", "")
+    streamers_db[username] = twitch_channel
     save_data()
-    await update.message.reply_text(f"✅ تم ربط الستريمر `@{username}` بقناة Kick: `{kick_channel}` بنجاح!", parse_mode="Markdown")
+    await update.message.reply_text(f"✅ تم ربط الستريمر `@{username}` بقناة Twitch: `{twitch_channel}` بنجاح!", parse_mode="Markdown")
 
 async def remove_streamer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
@@ -153,8 +153,8 @@ async def list_streamers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not streamers_db:
         msg += "لا يوجد ستريمرز مسجلين الآن."
     else:
-        for user, kick_chan in streamers_db.items():
-            msg += f"• `@{user}` -> Kick: `{kick_chan}`\n"
+        for user, tw_chan in streamers_db.items():
+            msg += f"• `@{user}` -> Twitch: `{tw_chan}`\n"
     await update.message.reply_text(msg, parse_mode="Markdown")
 
 # --- 🎮 أوامر الستريمر ---
@@ -167,16 +167,16 @@ async def set_channel(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if not context.args:
-        await update.message.reply_text("❌ يرجى إرفاق اسم قناتك على Kick. مثال:\n`/setchannel 1stremer_1`", parse_mode="Markdown")
+        await update.message.reply_text("❌ يرجى إرفاق اسم قناتك على Twitch. مثال:\n`/setchannel 1stremer_1`", parse_mode="Markdown")
         return
 
     st_name = approved_streamers.get(user_id, update.effective_user.username or f"user_{user_id}").lower().replace("@", "")
-    kick_channel = context.args[0].lower().replace("@", "")
+    twitch_channel = context.args[0].lower().replace("@", "")
 
-    streamers_db[st_name] = kick_channel
+    streamers_db[st_name] = twitch_channel
     save_data()
     await update.message.reply_text(
-        f"🎉 **تم ربط قناتك بنجاح!**\nاسم حسابه بالبوت: `@{st_name}`\nقناة Kick: `{kick_channel}`\n\nالان بمجرد بدء البث من PRISM سيظهر بثك تلقائياً للمتابعين عبر الميني أب!",
+        f"🎉 **تم ربط قناتك بنجاح!**\nاسم حسابك بالبوت: `@{st_name}`\nقناة Twitch: `{twitch_channel}`\n\nالان بمجرد بدء البث من PRISM سيظهر بثك تلقائياً للمتابعين عبر الميني أب!",
         parse_mode="Markdown"
     )
 
@@ -193,17 +193,17 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     query_username = update.message.text.strip().lower().replace("@", "")
 
-    kick_channel = None
+    twitch_channel = None
     if query_username in streamers_db:
-        kick_channel = streamers_db[query_username]
+        twitch_channel = streamers_db[query_username]
     else:
         for st_id, st_name in approved_streamers.items():
             if st_name.lower() == query_username:
-                kick_channel = query_username
+                twitch_channel = query_username
                 break
 
-    if kick_channel:
-        web_app_full_url = f"{WEB_APP_BASE_URL}?streamer={kick_channel}"
+    if twitch_channel:
+        web_app_full_url = f"{WEB_APP_BASE_URL}?streamer={twitch_channel}"
 
         keyboard = [
             [InlineKeyboardButton("📺 مشاهدة البث المباشر الآن", web_app=WebAppInfo(url=web_app_full_url))]
