@@ -3,102 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>بث مباشر - جيلوكا</title>
+  <title>بثوث مباشرة جيلوكا</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
+    body, html {
       margin: 0;
       padding: 0;
-      background-color: #0d1117;
-      color: #fff;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      width: 100%;
+      height: 100%;
+      background-color: #0d0f12;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-    header {
-      width: 100%;
-      background: #161b22;
-      padding: 12px 0;
-      text-align: center;
-      border-bottom: 1px solid #30363d;
-      font-weight: bold;
-      font-size: 16px;
-      color: #58a6ff;
-    }
-    #video-container {
-      width: 100%;
-      max-width: 800px;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 10px;
-    }
-    iframe {
-      width: 100%;
-      height: 60vh;
-      border: none;
-      border-radius: 8px;
-      background: #000;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     }
     #ad-container {
       width: 100%;
-      min-height: 80px;
-      background: #161b22;
+      height: 80px;
+      background: #181a20;
       display: flex;
-      align-items: center;
       justify-content: center;
-      border-top: 1px solid #30363d;
-      padding: 5px;
+      align-items: center;
+    }
+    #player-container {
+      flex: 1;
+      width: 100%;
+      height: calc(100% - 80px);
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
   </style>
 </head>
 <body>
 
-  <header>📺 بث مباشر - الستريمر: <span id="streamer-name">جاري التحميل...</span></header>
-
-  <div id="video-container">
-    <iframe id="kick-embed" src="" allowfullscreen></iframe>
+  <!-- حاوية الإعلانات -->
+  <div id="ad-container">
+    <!-- كود إعلانات Adsterra هنا -->
   </div>
 
-  <!-- حاوية الإعلان المدمجة بشفرتك -->
-  <div id="ad-container"></div>
+  <!-- حاوية المشغل -->
+  <div id="player-container">
+    <iframe id="kick-player" allowfullscreen="true"></iframe>
+  </div>
 
   <script>
-    // جلب اسم الستريمر من رابط الميني أب (?streamer=NAME)
+    // 1. استخراج اسم الستريمر من رابط URL
     const urlParams = new URLSearchParams(window.location.search);
-    const streamerUsername = urlParams.get('streamer') || 'default';
+    const streamer = (urlParams.get('streamer') || '1stremer_1').toLowerCase().trim();
 
-    document.getElementById('streamer-name').innerText = '@' + streamerUsername;
-
-    // تشغيل بث Kick المباشر للستريمر
-    const embedIframe = document.getElementById('kick-embed');
-    embedIframe.src = `https://player.kick.com/${streamerUsername}?autoplay=true&muted=true`;
-
-    // دالة تجديد الإعلان الخاص بك كل 15 ثانية مع تمرير اسم الستريمر كـ subid
-    function refreshAd() {
-      const adContainer = document.getElementById('ad-container');
-      adContainer.innerHTML = ''; 
-
-      const script = document.createElement('script');
-      script.setAttribute('data-cfasync', 'false');
-      script.src = `https://bicea.org/14/664c4c28023577c68e9439b9764e7610?subid=${streamerUsername}&rand=` + Math.random();
-      script.async = true;
-      
-      adContainer.appendChild(script);
-    }
-
-    // تشغيل الإعلان فور فتح الصفحة وتكراره كل 15 ثانية
-    refreshAd();
-    setInterval(refreshAd, 15000);
+    // 2. إعداد مشغل Kick مع إضافة النطاق المعتمد (parent)
+    const playerFrame = document.getElementById('kick-player');
+    
+    // إرسال النطاق الخاص بـ GitHub Pages لتجنب خطأ Misconfigured
+    playerFrame.src = `https://player.kick.com/${streamer}?parent=galive11.github.io`;
   </script>
+
 </body>
 </html>
