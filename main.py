@@ -33,17 +33,22 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
-# --- نظام حفظ وقراءة البيانات تلقائياً دائمياً ---
+# قواعد البيانات في الذاكرة
+streamers_db = {}
+approved_streamers = {}
+
 def load_data():
+    global streamers_db, approved_streamers
     if os.path.exists(DATA_FILE):
         try:
             with open(DATA_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                approved = {int(k): v for k, v in data.get("approved_streamers", {}).items()}
-                return data.get("streamers_db", {}), approved
+                streamers_db = data.get("streamers_db", {})
+                approved = data.get("approved_streamers", {})
+                approved_streamers = {int(k): v for k, v in approved.items()}
+                logging.info("تم تحميل البيانات من الملف بنجاح.")
         except Exception as e:
-            logging.error(f"Error loading data: {e}")
-    return {}, {}
+            logging.error(f"خطأ في قراءة ملف البيانات: {e}")
 
 def save_data():
     try:
@@ -53,10 +58,10 @@ def save_data():
                 "approved_streamers": approved_streamers
             }, f, ensure_ascii=False, indent=2)
     except Exception as e:
-        logging.error(f"Error saving data: {e}")
+        logging.error(f"خطأ في حفظ البيانات: {e}")
 
-# تحميل البيانات المحفوظة عند بدء البوت
-streamers_db, approved_streamers = load_data()
+# تحميل البيانات فور تشغيل السكريبت
+load_data()
 
 async def is_subscribed(user_id: int, context: ContextTypes.DEFAULT_TYPE) -> bool:
     try:
@@ -86,10 +91,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     await update.message.reply_text(welcome_text, parse_mode="Markdown")
 
-# --- 👑 أوامر الأدمن (المدير) ---
+# --- 👑 أوامر الأدمن ---
 
 async def authorize_streamer(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """إضافة ستريمر معتمد جديد بواسطة الأدمن"""
     if update.effective_user.id != ADMIN_ID:
         await update.message.reply_text("⚠️ هذا الأمر مخصص للأدمن فقط.")
         return
@@ -103,13 +107,12 @@ async def authorize_streamer(update: Update, context: ContextTypes.DEFAULT_TYPE)
         st_name = context.args[1].lower().replace("@", "")
         approved_streamers[st_id] = st_name
         streamers_db[st_name] = st_name
-        save_data() # حفظ في الملف تلقائياً
+        save_data()
         await update.message.reply_text(f"✅ تم اعتماد الستريمر `@{st_name}` برقم الآيدي `{st_id}` بنجاح وحفظ البيانات!", parse_mode="Markdown")
     except ValueError:
         await update.message.reply_text("❌ يرجى إدخال Telegram User ID بشكل رقمي صحيح.")
 
 async def add_streamer_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """إضافة/تحديث قناة ستريمر مباشرة عبر الأدمن"""
     if update.effective_user.id != ADMIN_ID:
         await update.message.reply_text("⚠️ هذا الأمر مخصص للأدمن فقط.")
         return
@@ -121,7 +124,7 @@ async def add_streamer_admin(update: Update, context: ContextTypes.DEFAULT_TYPE)
     username = context.args[0].lower().replace("@", "")
     kick_channel = context.args[1].lower().replace("@", "")
     streamers_db[username] = kick_channel
-    save_data() # حفظ في الملف تلقائياً
+    save_data()
     await update.message.reply_text(f"✅ تم ربط الستريمر `@{username}` بقناة Kick: `{kick_channel}` بنجاح!", parse_mode="Markdown")
 
 async def remove_streamer(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -136,7 +139,7 @@ async def remove_streamer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = context.args[0].lower().replace("@", "")
     if username in streamers_db:
         del streamers_db[username]
-        save_data() # حفظ التغييرات دائمياً
+        save_data()
         await update.message.reply_text(f"🗑 تم إيقاف وحذف بث `@{username}`.")
     else:
         await update.message.reply_text("⚠️ اسم الستريمر غير موجود.")
@@ -154,10 +157,9 @@ async def list_streamers(update: Update, context: ContextTypes.DEFAULT_TYPE):
             msg += f"• `@{user}` -> Kick: `{kick_chan}`\n"
     await update.message.reply_text(msg, parse_mode="Markdown")
 
-# --- 🎮 أوامر الستريمر المعتمد ---
+# --- 🎮 أوامر الستريمر ---
 
 async def set_channel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """يستخدمها الستريمر لربط اسم قناته على Kick أوتوماتيكياً"""
     user_id = update.effective_user.id
 
     if user_id not in approved_streamers and user_id != ADMIN_ID:
@@ -165,14 +167,14 @@ async def set_channel(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if not context.args:
-        await update.message.reply_text("❌ يرجى إرفاق اسم قناتك على Kick. مثال:\n`/setchannel jalal`", parse_mode="Markdown")
+        await update.message.reply_text("❌ يرجى إرفاق اسم قناتك على Kick. مثال:\n`/setchannel 1stremer_1`", parse_mode="Markdown")
         return
 
     st_name = approved_streamers.get(user_id, update.effective_user.username or f"user_{user_id}").lower().replace("@", "")
     kick_channel = context.args[0].lower().replace("@", "")
 
     streamers_db[st_name] = kick_channel
-    save_data() # حفظ البيانات تلقائياً
+    save_data()
     await update.message.reply_text(
         f"🎉 **تم ربط قناتك بنجاح!**\nاسم حسابه بالبوت: `@{st_name}`\nقناة Kick: `{kick_channel}`\n\nالان بمجرد بدء البث من PRISM سيظهر بثك تلقائياً للمتابعين عبر الميني أب!",
         parse_mode="Markdown"
@@ -181,7 +183,7 @@ async def set_channel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def set_live(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await set_channel(update, context)
 
-# --- معالجة الرسائل والبحث للمتابعين ---
+# --- معالجة الرسائل والبحث ---
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
@@ -235,7 +237,7 @@ def main():
 
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    logging.info("البوت يعمل بنجاح مع حفظ البيانات التلقائي...")
+    logging.info("البوت شغال الآن...")
     app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
