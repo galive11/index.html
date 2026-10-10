@@ -3,7 +3,7 @@ import json
 import logging
 from threading import Thread
 from flask import Flask
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 # --- خادم ويب وهمي لإبقاء Render شغالاً مجاناً ---
@@ -205,8 +205,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if twitch_channel:
         web_app_full_url = f"{WEB_APP_BASE_URL}?streamer={twitch_channel}"
 
+        # استخدام رابط مباشر (url) لفتح الميني أب وضمان استجابة الزر لدى كافة المستخدمين
         keyboard = [
-            [InlineKeyboardButton("📺 مشاهدة البث المباشر الآن", web_app=WebAppInfo(url=web_app_full_url))]
+            [InlineKeyboardButton("📺 مشاهدة البث المباشر الآن", url=web_app_full_url)]
         ]
         await update.message.reply_text(
             f"🔴 **البث المباشر لـ @{query_username} متاح الآن!**\nاضغط على الزر أدناه لمشاهدة البث مباشرة:",
