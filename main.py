@@ -205,7 +205,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if twitch_channel:
         web_app_full_url = f"{WEB_APP_BASE_URL}?streamer={twitch_channel}"
 
-        # استخدام WebAppInfo القياسي لفتح الميني أب داخل البوت مباشرة وبدون أشرطة خارجية لكافة المشاهدين
+        # استخدام WebAppInfo ليتوافق مع رابط الميني أب العام المربوط في BotFather
         keyboard = [
             [InlineKeyboardButton("📺 مشاهدة البث المباشر الآن", web_app=WebAppInfo(url=web_app_full_url))]
         ]
