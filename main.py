@@ -3,7 +3,7 @@ import json
 import logging
 from threading import Thread
 from flask import Flask
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 # --- خادم ويب وهمي لإبقاء Render شغالاً مجاناً ---
@@ -28,6 +28,9 @@ ADMIN_ID = 1957078158
 WEB_APP_BASE_URL = "https://galive11.github.io/"
 CHANNEL_USERNAME = "@Jilouka_Streams"
 DATA_FILE = "data.json"
+
+# اسم يوزر البوت بدون @
+BOT_USERNAME = "Livesnowgilokabot"
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -203,11 +206,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 break
 
     if twitch_channel:
-        web_app_full_url = f"{WEB_APP_BASE_URL}?streamer={twitch_channel}"
+        # رابط الفتح المباشر الرسمي للميني أب
+        direct_bot_app_url = f"https://t.me/{BOT_USERNAME}?startapp={twitch_channel}"
 
-        # استخدام WebAppInfo ليتوافق مع رابط الميني أب العام المربوط في BotFather
         keyboard = [
-            [InlineKeyboardButton("📺 مشاهدة البث المباشر الآن", web_app=WebAppInfo(url=web_app_full_url))]
+            [InlineKeyboardButton("📺 مشاهدة البث المباشر الآن", url=direct_bot_app_url)]
         ]
         await update.message.reply_text(
             f"🔴 **البث المباشر لـ @{query_username} متاح الآن!**\nاضغط على الزر أدناه لمشاهدة البث مباشرة:",
