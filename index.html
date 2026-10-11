@@ -67,9 +67,9 @@
       window.Telegram.WebApp.expand();
     }
 
-    // جلب اسم القناة من الرابط (الافتراضي 1stremer_1)
+    // جلب اسم القناة من الرابط (سواء عبر startapp أو streamer، والاختراضي 1stremer_1)
     const urlParams = new URLSearchParams(window.location.search);
-    const streamer = (urlParams.get('streamer') || '1stremer_1').toLowerCase().trim();
+    const streamer = (urlParams.get('startapp') || urlParams.get('streamer') || '1stremer_1').toLowerCase().trim();
 
     // إعداد مشغل Twitch
     const playerFrame = document.getElementById('twitch-player');
