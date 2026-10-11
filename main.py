@@ -25,7 +25,7 @@ def keep_alive():
 # --- الإعدادات ---
 BOT_TOKEN = "8832825150:AAEIINN3SmeucO0qQ4DalJ-dJTdsxI_L6LY"
 ADMIN_ID = 1957078158
-WEB_APP_BASE_URL = "https://galive11.github.io/"
+WEB_APP_BASE_URL = "https://galive11.github.io/index.html/"
 CHANNEL_USERNAME = "@Jilouka_Streams"
 DATA_FILE = "data.json"
 
