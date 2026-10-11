@@ -203,10 +203,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 break
 
     if twitch_channel:
-        # رابط صفحة الويب الخارجية المباشر مع اسم الستريمر
         web_app_full_url = f"{WEB_APP_BASE_URL}?streamer={twitch_channel}"
 
-        # استخدام زر رابط خارجي (URL) لفتح صفحة الويب مباشرة وبدون أي مشاكل استجابة
         keyboard = [
             [InlineKeyboardButton("📺 مشاهدة البث المباشر الآن", url=web_app_full_url)]
         ]
