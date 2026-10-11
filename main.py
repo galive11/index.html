@@ -3,7 +3,7 @@ import json
 import logging
 from threading import Thread
 from flask import Flask
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, MenuButtonWebApp, WebAppInfo
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 # --- خادم ويب وهمي لإبقاء Render شغالاً مجاناً ---
@@ -28,9 +28,6 @@ ADMIN_ID = 1957078158
 WEB_APP_BASE_URL = "https://galive11.github.io/"
 CHANNEL_USERNAME = "@Jilouka_Streams"
 DATA_FILE = "data.json"
-
-# يوزر البوت الفعلي بدون علامة @
-BOT_USERNAME = "Livesnowgilokabot"
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -76,6 +73,16 @@ async def is_subscribed(user_id: int, context: ContextTypes.DEFAULT_TYPE) -> boo
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
+    
+    # الحل الجذري: تفعيل زر القائمة الثابت (Menu Button) تلقائياً لفتح الميني أب للمستخدمين والادمن بدون قيود
+    try:
+        await context.bot.set_chat_menu_button(
+            chat_id=user.id,
+            menu_button=MenuButtonWebApp(text="📺 فتح المنصة", web_app=WebAppInfo(url=WEB_APP_BASE_URL))
+        )
+    except Exception as e:
+        logging.error(f"Error setting menu button: {e}")
+
     if not await is_subscribed(user.id, context):
         keyboard = [
             [InlineKeyboardButton("📢 اشترك في القناة أولاً", url=f"https://t.me/{CHANNEL_USERNAME.replace('@', '')}")],
@@ -89,8 +96,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     welcome_text = (
         f"مرحباً بك {user.first_name} في منصة البثوث المباشرة! 📺✨\n\n"
-        "• أرسل يوزر الستريمر للبحث عن بثه المباشر وضمه في الميني أب.\n"
-        "• للستريمر المعتمد: ربط قناة Twitch عبر الأمر `/setchannel [اسم_القناة]`"
+        "• أرسل يوزر الستريمر للبحث عن بثه المباشر.\n"
+        "• للستريمر المعتمد: ربط قناة Twitch عبر الأمر `/setchannel [اسم_القناة]`\n\n"
+        "💡 **ملاحظة هامة:** لفتح المنصة ومشاهدة البثوث والإعلانات فوراً، يمكنك الضغط على زر **(فتح المنصة)** الثابت بجانب خانة كتابة الرسائل أسفل الشاشة!"
     )
     await update.message.reply_text(welcome_text, parse_mode="Markdown")
 
@@ -208,12 +216,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if twitch_channel:
         web_app_full_url = f"{WEB_APP_BASE_URL}?streamer={twitch_channel}"
 
-        # استخدام WebAppInfo الصحيح لفتح الميني أب مباشرة وبدون أخطاء
+        # إرسال الزر بالطريقة الداعمة
         keyboard = [
             [InlineKeyboardButton("📺 مشاهدة البث المباشر الآن", web_app=WebAppInfo(url=web_app_full_url))]
         ]
         await update.message.reply_text(
-            f"🔴 **البث المباشر لـ @{query_username} متاح الآن!**\nاضغط على الزر أدناه لمشاهدة البث مباشرة:",
+            f"🔴 **البث المباشر لـ @{query_username} متاح الآن!**\nاضغط على الزر أدناه أو زر (فتح المنصة) في الأسفل لمشاهدة البث مباشرة:",
             reply_markup=InlineKeyboardMarkup(keyboard),
             parse_mode="Markdown"
         )
