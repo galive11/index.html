@@ -6,22 +6,23 @@
   <title>بثوث مباشرة جيلوكا</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body, html {
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body, html { width: 100%; height: 100%; background-color: #0d0f12; overflow: hidden; display: flex; flex-direction: column; font-family: system-ui, -apple-system, sans-serif; }
+
+    /* حاوية الإعلان في أعلى الشاشة */
+    #top-ad-container {
       width: 100%;
-      height: 100%;
-      background-color: #0d0f12;
-      overflow: hidden;
+      height: 70px;
+      background: #181a20;
       display: flex;
-      flex-direction: column;
-      font-family: system-ui, -apple-system, sans-serif;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      border-bottom: 1px solid #2b2f3a;
+      overflow: hidden;
     }
 
-    /* حاوية مشغل البث (تأخذ المساحة العلوية المتبقية) */
+    /* حاوية مشغل البث (تأخذ باقي مساحة الشاشة أسفل الإعلان) */
     #player-container {
       flex: 1;
       width: 100%;
@@ -33,57 +34,16 @@
       height: 100%;
       border: none;
     }
-
-    /* الإطار الدائم المدمج أسفل الشاشة (يبدو كأنه جزء من مشغل الفيديو) */
-    #persistent-ad-bar {
-      width: 100%;
-      height: 75px;
-      background: #12141c;
-      border-top: 2px solid #2b2f3a;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 10px;
-      position: relative;
-      z-index: 100;
-    }
-
-    .ad-brand-label {
-      font-size: 10px;
-      color: #888;
-      background: #1c202a;
-      padding: 2px 6px;
-      border-radius: 4px;
-      white-space: nowrap;
-      margin-left: 8px;
-    }
-
-    /* حاوية الإعلان بداخل الإطار مع انتقال سلس جداً */
-    #ad-viewport {
-      flex: 1;
-      height: 60px;
-      background: #181a20;
-      border-radius: 6px;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      transition: opacity 0.5s ease-in-out; /* انتقال سلس لمنع أي وميض مزعج */
-    }
-
-    .ad-slot-inner {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
   </style>
 </head>
 <body>
 
-  <!-- 1. مشغل البث (Twitch) -->
+  <!-- 1. إعلان Adsterra الثابت في أعلى الشاشة -->
+  <div id="top-ad-container">
+    <script data-cfasync="false" src="https://bicea.org/14/664c4c28023577c68e9439b9764e7610"></script>
+  </div>
+
+  <!-- 2. مشغل البث (Twitch) يملأ باقي الشاشة -->
   <div id="player-container">
     <iframe 
       id="twitch-player" 
@@ -91,16 +51,6 @@
       scrolling="no"
       allow="autoplay; fullscreen; encrypted-media">
     </iframe>
-  </div>
-
-  <!-- 2. الإطار الدائم المستمر أسفل الشاشة (يشبه شريط التشغيل المدمج) -->
-  <div id="persistent-ad-bar">
-    <div class="ad-brand-label">إعلان رعاية</div>
-    <div id="ad-viewport">
-      <div id="ad-slot" class="ad-slot-inner">
-        <!-- سيتم تحميل الإعلان هنا ديناميكياً -->
-      </div>
-    </div>
   </div>
 
   <script>
@@ -118,36 +68,7 @@
     const playerFrame = document.getElementById('twitch-player');
     const embedUrl = `https://player.twitch.tv/?channel=${streamer}&parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org&autoplay=true&muted=false`;
     playerFrame.src = embedUrl;
-
-    // --- نظام التحديث السلس والمستمر للإعلانات بدون مسافات زمنية مزعجة ---
-    function rotateAds() {
-      const adViewport = document.getElementById('ad-viewport');
-      const adSlot = document.getElementById('ad-slot');
-      
-      if (adViewport && adSlot) {
-        // تأثير التلاشي التدريجي للاختفاء السلس
-        adViewport.style.opacity = '0';
-        
-        setTimeout(() => {
-          adSlot.innerHTML = '';
-          const script = document.createElement('script');
-          script.setAttribute('data-cfasync', 'false');
-          // بصمة زمنية لتجديد الإعلان وضمان استمرارية العرض بدون أخطاء
-          script.src = "https://bicea.org/14/664c4c28023577c68e9439b9764e7610?t=" + Date.now();
-          adSlot.appendChild(script);
-
-          // إعادة إظهار الإطار بسلاسة تامة
-          adViewport.style.opacity = '1';
-        }, 500); // 500 مللي ثانية مدة التلاشي السلس
-      }
-    }
-
-    // تحميل الإعلان لأول مرة
-    rotateAds();
-
-    // تحديث الإعلان بشكل سلس كل 25 ثانية (يبدو كأنه فاصل إعلاني طبيعي متصل تماماً)
-    setInterval(rotateAds, 25000);
   </script>
 
 </body>
-</html>
+</htm90pxpx
