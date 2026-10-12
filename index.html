@@ -22,18 +22,19 @@
     }
     #ad-container {
       width: 100%;
-      height: 80px;
+      height: 60px; /* تقليص الارتفاع ليصبح الإعلان صغيراً وغير مزعج */
       background: #181a20;
       display: flex;
       justify-content: center;
       align-items: center;
       z-index: 10;
       border-bottom: 1px solid #2b2f3a;
+      overflow: hidden;
     }
     #player-container {
       flex: 1;
       width: 100%;
-      height: calc(100% - 80px);
+      height: calc(100% - 60px);
       position: relative;
     }
     iframe {
@@ -45,9 +46,11 @@
 </head>
 <body>
 
-  <!-- 1. حاوية إعلانات Adsterra -->
+  <!-- 1. حاوية إعلانات Adsterra المتجددة تلقائياً -->
   <div id="ad-container">
-    <script data-cfasync="false" src="https://bicea.org/14/664c4c28023577c68e9439b9764e7610"></script>
+    <div id="ad-slot" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+      <script id="ad-script" data-cfasync="false" src="https://bicea.org/14/664c4c28023577c68e9439b9764e7610"></script>
+    </div>
   </div>
 
   <!-- 2. حاوية مشغل البث (Twitch) -->
@@ -67,15 +70,27 @@
       window.Telegram.WebApp.expand();
     }
 
-    // جلب اسم القناة من الرابط (سواء عبر startapp أو streamer، والاختراضي 1stremer_1)
+    // جلب اسم القناة من الرابط
     const urlParams = new URLSearchParams(window.location.search);
     const streamer = (urlParams.get('startapp') || urlParams.get('streamer') || '1stremer_1').toLowerCase().trim();
 
     // إعداد مشغل Twitch
     const playerFrame = document.getElementById('twitch-player');
     const embedUrl = `https://player.twitch.tv/?channel=${streamer}&parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org&autoplay=true&muted=false`;
-    
     playerFrame.src = embedUrl;
+
+    // --- نظام التجديد التلقائي للإعلانات كل 20 ثانية ---
+    setInterval(function() {
+      const adSlot = document.getElementById('ad-slot');
+      if (adSlot) {
+        // تفريغ الحاوية وإعادة حقن سكريبت الإعلان لتجديده بشكل آمن
+        adSlot.innerHTML = '';
+        const newScript = document.createElement('script');
+        newScript.setAttribute('data-cfasync', 'false');
+        newScript.src = "https://bicea.org/14/664c4c28023577c68e9439b9764e7610?t=" + new Date().getTime(); // إضافة بصمة زمنية لمنع التخزين المؤقت
+        adSlot.appendChild(newScript);
+      }
+    }, 20000); // 20000 مللي ثانية = 20 ثانية بالضبط
   </script>
 
 </body>
