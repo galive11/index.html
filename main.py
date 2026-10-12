@@ -25,7 +25,6 @@ def keep_alive():
 # --- الإعدادات ---
 BOT_TOKEN = "8832825150:AAEIINN3SmeucO0qQ4DalJ-dJTdsxI_L6LY"
 ADMIN_ID = 1957078158
-# قم بوضع الرابط الصحيح الذي يعمل لديك تماماً في الأسفل (سواء كان رابط Netlify أو الرابط المظبوط مع index.html)
 WEB_APP_BASE_URL = "https://galive11.github.io/index.html/"
 CHANNEL_USERNAME = "@Jilouka_Streams"
 DATA_FILE = "data.json"
@@ -34,7 +33,9 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
-# قواعد البيانات في الذاكرة
+# قواعد البيانات
+# streamers_db: تخزن (يوزر_البحث -> قناة_تويتش)
+# approved_streamers: تخزن (آيدي_تيليجرام -> يوزر_البحث)
 streamers_db = {}
 approved_streamers = {}
 
@@ -56,12 +57,11 @@ def save_data():
         with open(DATA_FILE, "w", encoding="utf-8") as f:
             json.dump({
                 "streamers_db": streamers_db,
-                "approved_streamers": approved_streamers
+                "approved_streamers": {str(k): v for k, v in approved_streamers.items()}
             }, f, ensure_ascii=False, indent=2)
     except Exception as e:
         logging.error(f"خطأ في حفظ البيانات: {e}")
 
-# تحميل البيانات فور تشغيل السكريبت
 load_data()
 
 async def is_subscribed(user_id: int, context: ContextTypes.DEFAULT_TYPE) -> bool:
@@ -87,46 +87,69 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     welcome_text = (
         f"مرحباً بك {user.first_name} في منصة البثوث المباشرة! 📺✨\n\n"
-        "• أرسل يوزر الستريمر للبحث عن بثه المباشر.\n"
-        "• للستريمر المعتمد: ربط قناة Twitch عبر الأمر `/setchannel [اسم_القناة]`"
+        "• أرسل يوزر الستريمر (مثال: galal1) للبحث عن بثه المباشر.\n"
+        "• للستريمر المعتمد: ربط قناة Twitch عبر الأمر `/setchannel [قناة_تويتش]`"
     )
     await update.message.reply_text(welcome_text, parse_mode="Markdown")
 
-# --- 👑 أوامر الأدمن ---
+# --- 👑 أوامر الأدمن المتقدمة ---
 
 async def authorize_streamer(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    أمر الأدمن لاعتماد الستريمر وربط الآيدي بيوزر البحث الخاص به وقناة تويتش
+    الاستخدام: /auth [Telegram_ID] [Search_Username] [Twitch_Channel]
+    """
     if update.effective_user.id != ADMIN_ID:
         await update.message.reply_text("⚠️ هذا الأمر مخصص للأدمن فقط.")
         return
 
-    if len(context.args) < 2:
-        await update.message.reply_text("❌ الاستخدام الصحيح:\n`/auth [Telegram_User_ID] [streamer_username]`", parse_mode="Markdown")
+    if len(context.args) < 3:
+        await update.message.reply_text(
+            "❌ الاستخدام الصحيح:\n`/auth [Telegram_ID] [Search_Username] [Twitch_Channel]`\n\n"
+            "مثال:\n`/auth 8913199795 galal1 1stremer_1`",
+            parse_mode="Markdown"
+        )
         return
 
     try:
         st_id = int(context.args[0])
-        st_name = context.args[1].lower().replace("@", "")
-        approved_streamers[st_id] = st_name
-        streamers_db[st_name] = st_name
+        search_name = context.args[1].lower().replace("@", "")
+        twitch_channel = context.args[2].lower().replace("@", "")
+
+        # حفظ البيانات بالارتباطات الثلاثة
+        approved_streamers[st_id] = search_name
+        streamers_db[search_name] = twitch_channel
         save_data()
-        await update.message.reply_text(f"✅ تم اعتماد الستريمر `@{st_name}` برقم الآيدي `{st_id}` بنجاح وحفظ البيانات!", parse_mode="Markdown")
+
+        await update.message.reply_text(
+            f"✅ **تم تسجيل واعتماد الستريمر بنجاح!**\n\n"
+            f"• يوزر البحث (المشاهدين): `@{search_name}`\n"
+            f"• قناة Twitch: `{twitch_channel}`\n"
+            f"• آيدي تيليجرام: `{st_id}`",
+            parse_mode="Markdown"
+        )
     except ValueError:
-        await update.message.reply_text("❌ يرجى إدخال Telegram User ID بشكل رقمي صحيح.")
+        await update.message.reply_text("❌ يرجى التأكد من أن Telegram ID رقم صحيح.")
 
 async def add_streamer_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    ربط سريع لـ يوزر البحث مع قناة تويتش دون الحاجة لآيدي تيليجرام
+    الاستخدام: /add [Search_Username] [Twitch_Channel]
+    """
     if update.effective_user.id != ADMIN_ID:
         await update.message.reply_text("⚠️ هذا الأمر مخصص للأدمن فقط.")
         return
 
     if len(context.args) < 2:
-        await update.message.reply_text("❌ استخدم:\n`/add [streamer_username] [twitch_channel_name]`", parse_mode="Markdown")
+        await update.message.reply_text("❌ استخدم:\n`/add [Search_Username] [Twitch_Channel]`", parse_mode="Markdown")
         return
 
-    username = context.args[0].lower().replace("@", "")
+    search_name = context.args[0].lower().replace("@", "")
     twitch_channel = context.args[1].lower().replace("@", "")
-    streamers_db[username] = twitch_channel
+    
+    streamers_db[search_name] = twitch_channel
     save_data()
-    await update.message.reply_text(f"✅ تم ربط الستريمر `@{username}` بقناة Twitch: `{twitch_channel}` بنجاح!", parse_mode="Markdown")
+    await update.message.reply_text(f"✅ تم ربط يوزر البحث `@{search_name}` بقناة Twitch: `{twitch_channel}` بنجاح!", parse_mode="Markdown")
 
 async def remove_streamer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
@@ -134,31 +157,49 @@ async def remove_streamer(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if not context.args:
-        await update.message.reply_text("❌ استخدم:\n`/remove [streamer_username]`", parse_mode="Markdown")
+        await update.message.reply_text("❌ استخدم:\n`/remove [Search_Username]`", parse_mode="Markdown")
         return
 
-    username = context.args[0].lower().replace("@", "")
-    if username in streamers_db:
-        del streamers_db[username]
+    search_name = context.args[0].lower().replace("@", "")
+    
+    # حذف من القاموسين لتنظيف البيانات تماماً
+    removed = False
+    if search_name in streamers_db:
+        del streamers_db[search_name]
+        removed = True
+
+    for st_id, name in list(approved_streamers.items()):
+        if name == search_name:
+            del approved_streamers[st_id]
+            removed = True
+
+    if removed:
         save_data()
-        await update.message.reply_text(f"🗑 تم إيقاف وحذف بث `@{username}`.")
+        await update.message.reply_text(f"🗑 تم حذف وحظر الستريمر `@{search_name}` بنجاح.")
     else:
-        await update.message.reply_text("⚠️ اسم الستريمر غير موجود.")
+        await update.message.reply_text("⚠️ يوزر البحث غير موجود.")
 
 async def list_streamers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
         await update.message.reply_text("⚠️ هذا الأمر مخصص للأدمن فقط.")
         return
 
-    msg = "📺 **قائمة الستريمرز المسجلين حالياً:**\n\n"
-    if not streamers_db:
+    msg = "📺 **قائمة الستريمرز المسجلين في النظام:**\n\n"
+    if not streamers_db and not approved_streamers:
         msg += "لا يوجد ستريمرز مسجلين الآن."
     else:
-        for user, tw_chan in streamers_db.items():
-            msg += f"• `@{user}` -> Twitch: `{tw_chan}`\n"
+        for search_name, tw_chan in streamers_db.items():
+            # العثور على الآيدي المرتبط إن وجد
+            linked_id = "بدون آيدي"
+            for st_id, name in approved_streamers.items():
+                if name == search_name:
+                    linked_id = str(st_id)
+                    break
+            msg += f"• بحث: `@{search_name}` ⬅️ تويتش: `{tw_chan}` (ID: `{linked_id}`)\n"
+            
     await update.message.reply_text(msg, parse_mode="Markdown")
 
-# --- 🎮 أوامر الستريمر ---
+# --- 🎮 أوامر الستريمر المعتمد ---
 
 async def set_channel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -171,20 +212,25 @@ async def set_channel(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ يرجى إرفاق اسم قناتك على Twitch. مثال:\n`/setchannel 1stremer_1`", parse_mode="Markdown")
         return
 
-    st_name = approved_streamers.get(user_id, update.effective_user.username or f"user_{user_id}").lower().replace("@", "")
+    # جلب يوزر البحث المرتبط بآيدي الستريمر تلقائياً
+    search_name = approved_streamers.get(user_id, update.effective_user.username or f"user_{user_id}").lower().replace("@", "")
     twitch_channel = context.args[0].lower().replace("@", "")
 
-    streamers_db[st_name] = twitch_channel
+    streamers_db[search_name] = twitch_channel
     save_data()
+    
     await update.message.reply_text(
-        f"🎉 **تم ربط قناتك بنجاح!**\nاسم حسابك بالبوت: `@{st_name}`\nقناة Twitch: `{twitch_channel}`\n\nالان بمجرد بدء البث من PRISM سيظهر بثك تلقائياً للمتابعين!",
+        f"🎉 **تم تحديث وربط قناتك بنجاح!**\n"
+        f"• يوزر البحث للجمهور: `@{search_name}`\n"
+        f"• قناة Twitch: `{twitch_channel}`\n\n"
+        "الآن عندما يبحث المتابعين عن يوزرك، سيظهر زر البث المباشر لقناتك تلقائياً!",
         parse_mode="Markdown"
     )
 
 async def set_live(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await set_channel(update, context)
 
-# --- معالجة الرسائل والبحث ---
+# --- 🔍 معالجة البحث وإرسال زر البث ---
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
@@ -194,17 +240,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     query_username = update.message.text.strip().lower().replace("@", "")
 
-    twitch_channel = None
-    if query_username in streamers_db:
-        twitch_channel = streamers_db[query_username]
-    else:
-        for st_id, st_name in approved_streamers.items():
-            if st_name.lower() == query_username:
-                twitch_channel = query_username
-                break
+    # البحث عن قناة تويتش المرتبطة بيوزر البحث الذي أرسله المستخدم
+    twitch_channel = streamers_db.get(query_username)
 
     if twitch_channel:
-        # بناء الرابط كاملاً مع متغير قناة تويتش الخاصة بالستريمر
         web_app_full_url = f"{WEB_APP_BASE_URL}?streamer={twitch_channel}"
 
         keyboard = [
