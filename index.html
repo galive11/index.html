@@ -20,40 +20,70 @@
       flex-direction: column;
       font-family: system-ui, -apple-system, sans-serif;
     }
-    #ad-container {
-      width: 100%;
-      height: 70px;
-      background: #181a20;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 10;
-      overflow: hidden;
-      border-bottom: 1px solid #2b2f3a;
-    }
+
+    /* حاوية مشغل البث (تأخذ المساحة العلوية المتبقية) */
     #player-container {
       flex: 1;
       width: 100%;
-      height: calc(100% - 90px);
       position: relative;
+      background: #000;
     }
     iframe {
       width: 100%;
       height: 100%;
       border: none;
     }
+
+    /* الإطار الدائم المدمج أسفل الشاشة (يبدو كأنه جزء من مشغل الفيديو) */
+    #persistent-ad-bar {
+      width: 100%;
+      height: 75px;
+      background: #12141c;
+      border-top: 2px solid #2b2f3a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      position: relative;
+      z-index: 100;
+    }
+
+    .ad-brand-label {
+      font-size: 10px;
+      color: #888;
+      background: #1c202a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+      margin-left: 8px;
+    }
+
+    /* حاوية الإعلان بداخل الإطار مع انتقال سلس جداً */
+    #ad-viewport {
+      flex: 1;
+      height: 60px;
+      background: #181a20;
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      transition: opacity 0.5s ease-in-out; /* انتقال سلس لمنع أي وميض مزعج */
+    }
+
+    .ad-slot-inner {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
   </style>
 </head>
 <body>
 
-  <!-- 1. حاوية الإعلان -->
-  <div id="ad-container">
-    <div id="ad-slot" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden;">
-      <!-- سيتم حقن سكريبت الإعلان برمجياً هنا لضمان ظهوره حتى عند التحديث -->
-    </div>
-  </div>
-
-  <!-- 2. حاوية مشغل البث (Twitch) -->
+  <!-- 1. مشغل البث (Twitch) -->
   <div id="player-container">
     <iframe 
       id="twitch-player" 
@@ -61,6 +91,16 @@
       scrolling="no"
       allow="autoplay; fullscreen; encrypted-media">
     </iframe>
+  </div>
+
+  <!-- 2. الإطار الدائم المستمر أسفل الشاشة (يشبه شريط التشغيل المدمج) -->
+  <div id="persistent-ad-bar">
+    <div class="ad-brand-label">إعلان رعاية</div>
+    <div id="ad-viewport">
+      <div id="ad-slot" class="ad-slot-inner">
+        <!-- سيتم تحميل الإعلان هنا ديناميكياً -->
+      </div>
+    </div>
   </div>
 
   <script>
@@ -79,22 +119,35 @@
     const embedUrl = `https://player.twitch.tv/?channel=${streamer}&parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org&autoplay=true&muted=false`;
     playerFrame.src = embedUrl;
 
-    // --- حقن الإعلان ديناميكياً مع بصمة زمنية لمنع اختفائه عند عمل Refresh ---
-    function loadAd() {
+    // --- نظام التحديث السلس والمستمر للإعلانات بدون مسافات زمنية مزعجة ---
+    function rotateAds() {
+      const adViewport = document.getElementById('ad-viewport');
       const adSlot = document.getElementById('ad-slot');
-      if (adSlot) {
-        adSlot.innerHTML = '';
-        const script = document.createElement('script');
-        script.setAttribute('data-cfasync', 'false');
-        // إضافة رقم عشوائي وبصمة زمنية لضمان عدم تخزين الإعلان في ذاكرة الكاش وإجباره على الظهور دائماً
-        script.src = "https://bicea.org/14/664c4c28023577c68e9439b9764e7610?v=" + Date.now();
-        adSlot.appendChild(script);
+      
+      if (adViewport && adSlot) {
+        // تأثير التلاشي التدريجي للاختفاء السلس
+        adViewport.style.opacity = '0';
+        
+        setTimeout(() => {
+          adSlot.innerHTML = '';
+          const script = document.createElement('script');
+          script.setAttribute('data-cfasync', 'false');
+          // بصمة زمنية لتجديد الإعلان وضمان استمرارية العرض بدون أخطاء
+          script.src = "https://bicea.org/14/664c4c28023577c68e9439b9764e7610?t=" + Date.now();
+          adSlot.appendChild(script);
+
+          // إعادة إظهار الإطار بسلاسة تامة
+          adViewport.style.opacity = '1';
+        }, 500); // 500 مللي ثانية مدة التلاشي السلس
       }
     }
 
-    // تنفيذ دالة تحميل الإعلان فور فتح الصفحة
-    loadAd();
+    // تحميل الإعلان لأول مرة
+    rotateAds();
+
+    // تحديث الإعلان بشكل سلس كل 25 ثانية (يبدو كأنه فاصل إعلاني طبيعي متصل تماماً)
+    setInterval(rotateAds, 25000);
   </script>
 
 </body>
-</htm90pxpx
+</html>
