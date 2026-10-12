@@ -22,18 +22,19 @@
     }
     #ad-container {
       width: 100%;
-      height: 50px; /* أصغر حجم قياسي وآمن للإعلانات لا يؤثر على المحتوى */
+      height: 80px; /* تم زيادة الارتفاع إلى 100px لضمان مساحة كافية لظهور الإعلان */
       background: #181a20;
       display: flex;
       justify-content: center;
       align-items: center;
       z-index: 10;
       overflow: hidden;
+      border-bottom: 1px solid #2b2f3a;
     }
     #player-container {
       flex: 1;
       width: 100%;
-      height: calc(100% - 50px);
+      height: calc(100% - 100px);
       position: relative;
     }
     iframe {
@@ -45,9 +46,9 @@
 </head>
 <body>
 
-  <!-- 1. حاوية الإعلان بحجم صغير جداً ومتجدد -->
+  <!-- 1. حاوية الإعلان بمساحة آمنة ومتجددة -->
   <div id="ad-container">
-    <div id="ad-slot" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+    <div id="ad-slot" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden;">
       <script id="ad-script" data-cfasync="false" src="https://bicea.org/14/664c4c28023577c68e9439b9764e7610"></script>
     </div>
   </div>
