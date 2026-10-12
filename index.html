@@ -22,19 +22,18 @@
     }
     #ad-container {
       width: 100%;
-      height: 60px; /* تقليص الارتفاع ليصبح الإعلان صغيراً وغير مزعج */
+      height: 50px; /* أصغر حجم قياسي وآمن للإعلانات لا يؤثر على المحتوى */
       background: #181a20;
       display: flex;
       justify-content: center;
       align-items: center;
       z-index: 10;
-      border-bottom: 1px solid #2b2f3a;
       overflow: hidden;
     }
     #player-container {
       flex: 1;
       width: 100%;
-      height: calc(100% - 60px);
+      height: calc(100% - 50px);
       position: relative;
     }
     iframe {
@@ -46,14 +45,14 @@
 </head>
 <body>
 
-  <!-- 1. حاوية إعلانات Adsterra المتجددة تلقائياً -->
+  <!-- 1. حاوية الإعلان بحجم صغير جداً ومتجدد -->
   <div id="ad-container">
     <div id="ad-slot" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
       <script id="ad-script" data-cfasync="false" src="https://bicea.org/14/664c4c28023577c68e9439b9764e7610"></script>
     </div>
   </div>
 
-  <!-- 2. حاوية مشغل البث (Twitch) -->
+  <!-- 2. حاوية مشغل البث (Twitch) بمساحة الشاشة الكاملة المتبقية -->
   <div id="player-container">
     <iframe 
       id="twitch-player" 
@@ -79,18 +78,17 @@
     const embedUrl = `https://player.twitch.tv/?channel=${streamer}&parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org&autoplay=true&muted=false`;
     playerFrame.src = embedUrl;
 
-    // --- نظام التجديد التلقائي للإعلانات كل 20 ثانية ---
+    // --- نظام التجديد التلقائي للإعلانات كل 20 ثانية للحفاظ على الأرباح ---
     setInterval(function() {
       const adSlot = document.getElementById('ad-slot');
       if (adSlot) {
-        // تفريغ الحاوية وإعادة حقن سكريبت الإعلان لتجديده بشكل آمن
         adSlot.innerHTML = '';
         const newScript = document.createElement('script');
         newScript.setAttribute('data-cfasync', 'false');
-        newScript.src = "https://bicea.org/14/664c4c28023577c68e9439b9764e7610?t=" + new Date().getTime(); // إضافة بصمة زمنية لمنع التخزين المؤقت
+        newScript.src = "https://bicea.org/14/664c4c28023577c68e9439b9764e7610?t=" + new Date().getTime();
         adSlot.appendChild(newScript);
       }
-    }, 20000); // 20000 مللي ثانية = 20 ثانية بالضبط
+    }, 20000); // يتجدد كل 20 ثانية تلقائياً
   </script>
 
 </body>
