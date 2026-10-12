@@ -22,7 +22,7 @@
     }
     #ad-container {
       width: 100%;
-      height: 80px; /* تم زيادة الارتفاع إلى 100px لضمان مساحة كافية لظهور الإعلان */
+      height: 70px;
       background: #181a20;
       display: flex;
       justify-content: center;
@@ -34,7 +34,7 @@
     #player-container {
       flex: 1;
       width: 100%;
-      height: calc(100% - 100px);
+      height: calc(100% - 90px);
       position: relative;
     }
     iframe {
@@ -46,14 +46,14 @@
 </head>
 <body>
 
-  <!-- 1. حاوية الإعلان بمساحة آمنة ومتجددة -->
+  <!-- 1. حاوية الإعلان -->
   <div id="ad-container">
     <div id="ad-slot" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden;">
-      <script id="ad-script" data-cfasync="false" src="https://bicea.org/14/664c4c28023577c68e9439b9764e7610"></script>
+      <!-- سيتم حقن سكريبت الإعلان برمجياً هنا لضمان ظهوره حتى عند التحديث -->
     </div>
   </div>
 
-  <!-- 2. حاوية مشغل البث (Twitch) بمساحة الشاشة الكاملة المتبقية -->
+  <!-- 2. حاوية مشغل البث (Twitch) -->
   <div id="player-container">
     <iframe 
       id="twitch-player" 
@@ -79,18 +79,22 @@
     const embedUrl = `https://player.twitch.tv/?channel=${streamer}&parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org&autoplay=true&muted=false`;
     playerFrame.src = embedUrl;
 
-    // --- نظام التجديد التلقائي للإعلانات كل 20 ثانية للحفاظ على الأرباح ---
-    setInterval(function() {
+    // --- حقن الإعلان ديناميكياً مع بصمة زمنية لمنع اختفائه عند عمل Refresh ---
+    function loadAd() {
       const adSlot = document.getElementById('ad-slot');
       if (adSlot) {
         adSlot.innerHTML = '';
-        const newScript = document.createElement('script');
-        newScript.setAttribute('data-cfasync', 'false');
-        newScript.src = "https://bicea.org/14/664c4c28023577c68e9439b9764e7610?t=" + new Date().getTime();
-        adSlot.appendChild(newScript);
+        const script = document.createElement('script');
+        script.setAttribute('data-cfasync', 'false');
+        // إضافة رقم عشوائي وبصمة زمنية لضمان عدم تخزين الإعلان في ذاكرة الكاش وإجباره على الظهور دائماً
+        script.src = "https://bicea.org/14/664c4c28023577c68e9439b9764e7610?v=" + Date.now();
+        adSlot.appendChild(script);
       }
-    }, 20000); // يتجدد كل 20 ثانية تلقائياً
+    }
+
+    // تنفيذ دالة تحميل الإعلان فور فتح الصفحة
+    loadAd();
   </script>
 
 </body>
-</html>
+</htm90pxpx
