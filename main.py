@@ -25,6 +25,7 @@ def keep_alive():
 # --- الإعدادات ---
 BOT_TOKEN = "8832825150:AAEIINN3SmeucO0qQ4DalJ-dJTdsxI_L6LY"
 ADMIN_ID = 1957078158
+# قم بوضع الرابط الصحيح الذي يعمل لديك تماماً في الأسفل (سواء كان رابط Netlify أو الرابط المظبوط مع index.html)
 WEB_APP_BASE_URL = "https://galive11.github.io/index.html/"
 CHANNEL_USERNAME = "@Jilouka_Streams"
 DATA_FILE = "data.json"
@@ -203,6 +204,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 break
 
     if twitch_channel:
+        # بناء الرابط كاملاً مع متغير قناة تويتش الخاصة بالستريمر
         web_app_full_url = f"{WEB_APP_BASE_URL}?streamer={twitch_channel}"
 
         keyboard = [
