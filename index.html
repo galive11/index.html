@@ -3,15 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- وسم ميتا الخاص بالتحقق من ملكية الموقع لـ HilltopAds -->
+  <meta name="060c88d124a53889e559e2f7b8509aad3c31bf0c" content="060c88d124a53889e559e2f7b8509aad3c31bf0c" />
+  
   <title>بثوث مباشرة جيلوكا</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body, html { width: 100%; height: 100%; background-color: #0d0f12; overflow: hidden; display: flex; flex-direction: column; font-family: system-ui, -apple-system, sans-serif; }
 
+    /* شريط البانر العلوي بمقاس 320x50 */
     #top-ad-container {
       width: 100%;
-      height: 55px; /* ارتفاع مناسب تماماً لمقاس 320x50 */
+      height: 55px;
       background: #181a20;
       display: flex;
       justify-content: center;
@@ -21,6 +25,16 @@
       overflow: hidden;
     }
 
+    #ad-slot {
+      width: 320px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* مشغل البث (Twitch) */
     #player-container {
       flex: 1;
       width: 100%;
@@ -36,9 +50,9 @@
 </head>
 <body>
 
-  <!-- إعلان بانر نظيف وثابت في الأعلى بمقاس 320x50 -->
+  <!-- حاوية الإعلانات المتسلسلة والمدورة -->
   <div id="top-ad-container">
-    <script data-cfasync="false" src="https://pl28414436.profitablecpmrate.com/664c4c28023577c68e9439b9764e7610/invoke.js"></script>
+    <div id="ad-slot"></div>
   </div>
 
   <!-- مشغل البث (Twitch) -->
@@ -57,11 +71,61 @@
       window.Telegram.WebApp.expand();
     }
 
+    // إعداد مشغل تويتش
     const urlParams = new URLSearchParams(window.location.search);
     const streamer = (urlParams.get('startapp') || urlParams.get('streamer') || '1stremer_1').toLowerCase().trim();
-
     const playerFrame = document.getElementById('twitch-player');
     playerFrame.src = `https://player.twitch.tv/?channel=${streamer}&parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org&autoplay=true&muted=false`;
+
+    // --- مصفوفة الـ 6 منصات إعلانية (المنصة الأولى سكريبتك الحالي، والبقية للمنصات الأخرى مثل HilltopAds) ---
+    const adNetworks = [
+      { type: 'script', src: "https://pl28414436.profitablecpmrate.com/664c4c28023577c68e9439b9764e7610/invoke.js" },
+      { type: 'script', src: "https://رابط_بانر_hilltopads.com/invoke.js" }, // استبدل هذا الرابط بعد تأكيد التحقق وإنشاء البانر
+      { type: 'script', src: "https://رابط_منصة_3.com/invoke.js" },
+      { type: 'script', src: "https://رابط_منصة_4.com/invoke.js" },
+      { type: 'script', src: "https://رابط_منصة_5.com/invoke.js" },
+      { type: 'script', src: "https://رابط_منصة_6.com/invoke.js" }
+    ];
+
+    let currentAdIndex = 0;
+    const adSlot = document.getElementById('ad-slot');
+
+    function loadNextAd() {
+      adSlot.innerHTML = ''; // تنظيف الحاوية بالكامل قبل الإعلان التالي
+
+      const currentAd = adNetworks[currentAdIndex];
+
+      // تحميل الإعلان داخل إطار مستقل لمنع التداخل أو توقف السكريبتات
+      const iframe = document.createElement('iframe');
+      iframe.width = "320";
+      iframe.height = "50";
+      iframe.style.border = "none";
+      iframe.style.overflow = "hidden";
+      iframe.scrolling = "no";
+
+      iframe.srcdoc = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>body{margin:0;padding:0;overflow:hidden;background:transparent;display:flex;justify-content:center;align-items:center;}</style>
+        </head>
+        <body>
+          <script type="text/javascript" src="${currentAd.src}?cb=${Math.floor(Math.random() * 1000000)}"><\/script>
+        </body>
+        </html>
+      `;
+
+      adSlot.appendChild(iframe);
+
+      // الانتقال للمنصة التالية بالتكرار المستمر
+      currentAdIndex = (currentAdIndex + 1) % adNetworks.length;
+    }
+
+    // التشغيل التلقائي والتبديل كل 10 ثوانٍ
+    setTimeout(() => {
+      loadNextAd();
+      setInterval(loadNextAd, 10000);
+    }, 1000);
   </script>
 
 </body>
