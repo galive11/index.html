@@ -3,8 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <!-- وسم ميتا الخاص بالتحقق من ملكية الموقع لـ HilltopAds -->
-  <meta name="060c88d124a53889e559e2f7b8509aad3c31bf0c" content="060c88d124a53889e559e2f7b8509aad3c31bf0c" />
   
   <title>بثوث مباشرة جيلوكا</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -77,10 +75,10 @@
     const playerFrame = document.getElementById('twitch-player');
     playerFrame.src = `https://player.twitch.tv/?channel=${streamer}&parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org&autoplay=true&muted=false`;
 
-    // --- مصفوفة الـ 6 منصات إعلانية (المنصة الأولى سكريبتك الحالي، والبقية للمنصات الأخرى مثل HilltopAds) ---
+    // --- مصفوفة المنصات الإعلانية ---
     const adNetworks = [
       { type: 'script', src: "https://pl28414436.profitablecpmrate.com/664c4c28023577c68e9439b9764e7610/invoke.js" },
-      { type: 'script', src: "https://رابط_بانر_hilltopads.com/invoke.js" }, // استبدل هذا الرابط بعد تأكيد التحقق وإنشاء البانر
+      { type: 'script', src: "https://رابط_بانر_hilltopads.com/invoke.js" }, 
       { type: 'script', src: "https://رابط_منصة_3.com/invoke.js" },
       { type: 'script', src: "https://رابط_منصة_4.com/invoke.js" },
       { type: 'script', src: "https://رابط_منصة_5.com/invoke.js" },
@@ -95,7 +93,7 @@
 
       const currentAd = adNetworks[currentAdIndex];
 
-      // تحميل الإعلان داخل إطار مستقل لمنع التداخل أو توقف السكريبتات
+      // تحميل الإعلان داخل إطار مستقل لمنع التداخل
       const iframe = document.createElement('iframe');
       iframe.width = "320";
       iframe.height = "50";
