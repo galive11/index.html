@@ -93,9 +93,9 @@
     const urlParams = new URLSearchParams(window.location.search);
     const streamer = (urlParams.get('startapp') || urlParams.get('streamer') || '1stremer_1').toLowerCase().trim();
     
-    // رابط البث
+    // رابط البث مع تفعيل وضع زمن التأخير المنخفض (latency=low) لسرعة فتح الفيديو
     const playerFrame = document.getElementById('twitch-player');
-    playerFrame.src = `https://player.twitch.tv/?channel=${streamer}&parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org&autoplay=true&muted=false`;
+    playerFrame.src = `https://player.twitch.tv/?channel=${streamer}&parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org&autoplay=true&muted=false&latency=low`;
 
     // رابط الشات المباشر المربوط بـ Twitch للوصول لزر PRISM Live
     const chatFrame = document.getElementById('twitch-chat');
