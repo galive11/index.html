@@ -78,7 +78,11 @@
     // --- مصفوفة المنصات الإعلانية ---
     const adNetworks = [
       { type: 'script', src: "https://pl28414436.profitablecpmrate.com/664c4c28023577c68e9439b9764e7610/invoke.js" },
-      { type: 'script', src: "ضع_رابط_بانر_adsterra_هنا" }, // ضع رابط السكريبت المأخوذ من Adsterra هنا
+      { 
+        type: 'adsterra', 
+        key: 'a29464a4501f20d707dab39e19d13298', 
+        src: "https://bicea.org/22/a29464a4501f20d707dab39e19d13298" 
+      },
       { type: 'script', src: "https://رابط_منصة_3.com/invoke.js" },
       { type: 'script', src: "https://رابط_منصة_4.com/invoke.js" },
       { type: 'script', src: "https://رابط_منصة_5.com/invoke.js" },
@@ -93,7 +97,6 @@
 
       const currentAd = adNetworks[currentAdIndex];
 
-      // تحميل الإعلان داخل إطار مستقل لمنع التداخل
       const iframe = document.createElement('iframe');
       iframe.width = "320";
       iframe.height = "50";
@@ -101,18 +104,44 @@
       iframe.style.overflow = "hidden";
       iframe.scrolling = "no";
 
-      iframe.srcdoc = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <style>body{margin:0;padding:0;overflow:hidden;background:transparent;display:flex;justify-content:center;align-items:center;}</style>
-        </head>
-        <body>
-          <script type="text/javascript" src="${currentAd.src}?cb=${Math.floor(Math.random() * 1000000)}"><\/script>
-        </body>
-        </html>
-      `;
+      let iframeContent = '';
 
+      if (currentAd.type === 'adsterra') {
+        iframeContent = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <style>body{margin:0;padding:0;overflow:hidden;background:transparent;display:flex;justify-content:center;align-items:center;}</style>
+          </head>
+          <body>
+            <script type="text/javascript">
+              atOptions = {
+                'key' : '${currentAd.key}',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+              };
+            <\/script>
+            <script type="text/javascript" src="${currentAd.src}"><\/script>
+          </body>
+          </html>
+        `;
+      } else {
+        iframeContent = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <style>body{margin:0;padding:0;overflow:hidden;background:transparent;display:flex;justify-content:center;align-items:center;}</style>
+          </head>
+          <body>
+            <script type="text/javascript" src="${currentAd.src}?cb=${Math.floor(Math.random() * 1000000)}"><\/script>
+          </body>
+          </html>
+        `;
+      }
+
+      iframe.srcdoc = iframeContent;
       adSlot.appendChild(iframe);
 
       // الانتقال للمنصة التالية بالتكرار المستمر
