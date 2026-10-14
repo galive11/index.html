@@ -75,18 +75,33 @@
     const playerFrame = document.getElementById('twitch-player');
     playerFrame.src = `https://player.twitch.tv/?channel=${streamer}&parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org&autoplay=true&muted=false`;
 
-    // --- مصفوفة المنصات الإعلانية ---
+    // --- مصفوفة وحدات أدوستيرا الـ 5 المخصصة للتدوير الدقيقي ---
     const adNetworks = [
-      { type: 'script', src: "https://pl28414436.profitablecpmrate.com/664c4c28023577c68e9439b9764e7610/invoke.js" },
       { 
         type: 'adsterra', 
         key: 'a29464a4501f20d707dab39e19d13298', 
         src: "https://bicea.org/22/a29464a4501f20d707dab39e19d13298" 
       },
-      { type: 'script', src: "https://رابط_منصة_3.com/invoke.js" },
-      { type: 'script', src: "https://رابط_منصة_4.com/invoke.js" },
-      { type: 'script', src: "https://رابط_منصة_5.com/invoke.js" },
-      { type: 'script', src: "https://رابط_منصة_6.com/invoke.js" }
+      { 
+        type: 'adsterra', 
+        key: '268098a475f11dd89f1beff0716f2a68', 
+        src: "https://bicea.org/22/268098a475f11dd89f1beff0716f2a68" 
+      },
+      { 
+        type: 'adsterra', 
+        key: 'ضع_مفتاح_الوحدة_3_هنا', 
+        src: "https://bicea.org/22/ضع_مفتاح_الوحدة_3_هنا" 
+      },
+      { 
+        type: 'adsterra', 
+        key: 'ضع_مفتاح_الوحدة_4_هنا', 
+        src: "https://bicea.org/22/ضع_مفتاح_الوحدة_4_هنا" 
+      },
+      { 
+        type: 'adsterra', 
+        key: 'ضع_مفتاح_الوحدة_5_هنا', 
+        src: "https://bicea.org/22/ضع_مفتاح_الوحدة_5_هنا" 
+      }
     ];
 
     let currentAdIndex = 0;
@@ -104,54 +119,38 @@
       iframe.style.overflow = "hidden";
       iframe.scrolling = "no";
 
-      let iframeContent = '';
-
-      if (currentAd.type === 'adsterra') {
-        iframeContent = `
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <style>body{margin:0;padding:0;overflow:hidden;background:transparent;display:flex;justify-content:center;align-items:center;}</style>
-          </head>
-          <body>
-            <script type="text/javascript">
-              atOptions = {
-                'key' : '${currentAd.key}',
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
-              };
-            <\/script>
-            <script type="text/javascript" src="${currentAd.src}"><\/script>
-          </body>
-          </html>
-        `;
-      } else {
-        iframeContent = `
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <style>body{margin:0;padding:0;overflow:hidden;background:transparent;display:flex;justify-content:center;align-items:center;}</style>
-          </head>
-          <body>
-            <script type="text/javascript" src="${currentAd.src}?cb=${Math.floor(Math.random() * 1000000)}"><\/script>
-          </body>
-          </html>
-        `;
-      }
+      const iframeContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>body{margin:0;padding:0;overflow:hidden;background:transparent;display:flex;justify-content:center;align-items:center;}</style>
+        </head>
+        <body>
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '${currentAd.key}',
+              'format' : 'iframe',
+              'height' : 50,
+              'width' : 320,
+              'params' : {}
+            };
+          <\/script>
+          <script type="text/javascript" src="${currentAd.src}"><\/script>
+        </body>
+        </html>
+      `;
 
       iframe.srcdoc = iframeContent;
       adSlot.appendChild(iframe);
 
-      // الانتقال للمنصة التالية بالتكرار المستمر
+      // الانتقال للوحدة الإعلانية التالية بانتظام
       currentAdIndex = (currentAdIndex + 1) % adNetworks.length;
     }
 
-    // التشغيل التلقائي والتبديل كل 10 ثوانٍ
+    // التشغيل المبدئي والتبديل كل 12 ثانية (دورة خماسية كاملة في الدقيقة الواحدة)
     setTimeout(() => {
       loadNextAd();
-      setInterval(loadNextAd, 10000);
+      setInterval(loadNextAd, 12000); // 12000 ملي ثانية = 12 ثانية
     }, 1000);
   </script>
 
