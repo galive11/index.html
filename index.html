@@ -21,6 +21,7 @@
       z-index: 100;
       border-bottom: 1px solid #2b2f3a;
       overflow: hidden;
+      flex-shrink: 0;
     }
 
     #ad-slot {
@@ -32,13 +33,24 @@
       overflow: hidden;
     }
 
-    /* مشغل البث (Twitch) */
+    /* مشغل البث (Twitch Player) */
     #player-container {
-      flex: 1;
       width: 100%;
+      height: 35vh; /* تحديد ارتفاع البث في الأعلى لاستغلال مساحة الشاشة */
       position: relative;
       background: #000;
+      flex-shrink: 0;
     }
+
+    /* حاوية الدردشة المباشرة (Twitch Chat) */
+    #chat-container {
+      flex: 1;
+      width: 100%;
+      background: #181a20;
+      border-top: 1px solid #2b2f3a;
+      overflow: hidden;
+    }
+
     iframe {
       width: 100%;
       height: 100%;
@@ -53,7 +65,7 @@
     <div id="ad-slot"></div>
   </div>
 
-  <!-- مشغل البث (Twitch) -->
+  <!-- مشغل البث (Twitch Player) -->
   <div id="player-container">
     <iframe 
       id="twitch-player" 
@@ -63,17 +75,31 @@
     </iframe>
   </div>
 
+  <!-- صندوق التعليقات والدردشة المباشرة (Twitch Chat) -->
+  <div id="chat-container">
+    <iframe 
+      id="twitch-chat"
+      scrolling="no">
+    </iframe>
+  </div>
+
   <script>
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
     }
 
-    // إعداد مشغل تويتش
+    // إعداد مشغل وتصميم دردشة تويتش
     const urlParams = new URLSearchParams(window.location.search);
     const streamer = (urlParams.get('startapp') || urlParams.get('streamer') || '1stremer_1').toLowerCase().trim();
+    
+    // رابط البث
     const playerFrame = document.getElementById('twitch-player');
     playerFrame.src = `https://player.twitch.tv/?channel=${streamer}&parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org&autoplay=true&muted=false`;
+
+    // رابط الشات المباشر المربوط بـ Twitch للوصول لزر PRISM Live
+    const chatFrame = document.getElementById('twitch-chat');
+    chatFrame.src = `https://www.twitch.tv/embed/${streamer}/chat?parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org&darkpopout`;
 
     // --- مصفوفة وحدات أدوستيرا الـ 5 المخصصة للتدوير الدقيقي ---
     const adNetworks = [
@@ -147,7 +173,7 @@
       currentAdIndex = (currentAdIndex + 1) % adNetworks.length;
     }
 
-    // التشغيل المبدئي والتبديل كل 12 ثانية (دورة خماسية كاملة في الدقيقة الواحدة)
+    // التشغيل المبدئي والتبديل كل 12 ثانية
     setTimeout(() => {
       loadNextAd();
       setInterval(loadNextAd, 12000); // 12000 ملي ثانية = 12 ثانية
