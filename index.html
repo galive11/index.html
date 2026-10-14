@@ -6,37 +6,15 @@
   
   <title>بثوث مباشرة جيلوكا</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body, html { width: 100%; height: 100%; background-color: #0d0f12; overflow: hidden; display: flex; flex-direction: column; font-family: system-ui, -apple-system, sans-serif; }
 
-    /* شريط البانر العلوي بمقاس 320x50 */
-    #top-ad-container {
-      width: 100%;
-      height: 55px;
-      background: #181a20;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 100;
-      border-bottom: 1px solid #2b2f3a;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-
-    #ad-slot {
-      width: 320px;
-      height: 50px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
-
     /* مشغل البث (Twitch Player) */
     #player-container {
       width: 100%;
-      height: 35vh; /* تحديد ارتفاع البث في الأعلى لاستغلال مساحة الشاشة */
+      height: 40vh;
       position: relative;
       background: #000;
       flex-shrink: 0;
@@ -59,11 +37,6 @@
   </style>
 </head>
 <body>
-
-  <!-- حاوية الإعلانات المتسلسلة والمدورة -->
-  <div id="top-ad-container">
-    <div id="ad-slot"></div>
-  </div>
 
   <!-- مشغل البث (Twitch Player) -->
   <div id="player-container">
@@ -93,91 +66,47 @@
     const urlParams = new URLSearchParams(window.location.search);
     const streamer = (urlParams.get('startapp') || urlParams.get('streamer') || '1stremer_1').toLowerCase().trim();
     
-    // رابط البث مع تفعيل وضع زمن التأخير المنخفض (latency=low) لسرعة فتح الفيديو
+    // رابط البث مع وضع latency=low لسرعة التشغيل
     const playerFrame = document.getElementById('twitch-player');
     playerFrame.src = `https://player.twitch.tv/?channel=${streamer}&parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org&autoplay=true&muted=false&latency=low`;
 
-    // رابط الشات المباشر المربوط بـ Twitch للوصول لزر PRISM Live
+    // رابط الشات المباشر المربوط بـ Twitch
     const chatFrame = document.getElementById('twitch-chat');
     chatFrame.src = `https://www.twitch.tv/embed/${streamer}/chat?parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org&darkpopout`;
 
-    // --- مصفوفة وحدات أدوستيرا الـ 5 المخصصة للتدوير الدقيقي ---
-    const adNetworks = [
-      { 
-        type: 'adsterra', 
-        key: 'a29464a4501f20d707dab39e19d13298', 
-        src: "https://bicea.org/22/a29464a4501f20d707dab39e19d13298" 
-      },
-      { 
-        type: 'adsterra', 
-        key: '268098a475f11dd89f1beff0716f2a68', 
-        src: "https://bicea.org/22/268098a475f11dd89f1beff0716f2a68" 
-      },
-      { 
-        type: 'adsterra', 
-        key: 'd3b4f4725461985dbb830cc4e82774e1', 
-        src: "https://bicea.org/22/d3b4f4725461985dbb830cc4e82774e1" 
-      },
-      { 
-        type: 'adsterra', 
-        key: '4cc930b5b38a6804f5a315b009ca32b5', 
-        src: "https://bicea.org/22/4cc930b5b38a6804f5a315b009ca32b5" 
-      },
-      { 
-        type: 'adsterra', 
-        key: 'd2a488d940e38b01f8351d34a820b582', 
-        src: "https://bicea.org/22/d2a488d940e38b01f8351d34a820b582" 
-      }
+    // --- مصفوفة روابط سكريبتات الـ Social Bar لربط الخمس وحدات ---
+    const socialBarScripts = [
+      "https://bicea.org/14/9f627e7fa7f8974baffcaf9fe5e7dacd", // الكود الأول الخاص بك
+      // "ضع رابط الكود الثاني هنا",
+      // "ضع رابط الكود الثالث هنا",
+      // "ضع رابط الكود الرابع هنا",
+      // "ضع رابط الكود الخامس هنا"
     ];
 
-    let currentAdIndex = 0;
-    const adSlot = document.getElementById('ad-slot');
+    let currentScriptIndex = 0;
 
-    function loadNextAd() {
-      adSlot.innerHTML = ''; // تنظيف الحاوية بالكامل قبل الإعلان التالي
+    function rotateSocialBar() {
+      // إزالة سكريبت Social Bar القديم إن وجد
+      const oldScript = document.getElementById('active-social-bar');
+      if (oldScript) {
+        oldScript.remove();
+      }
 
-      const currentAd = adNetworks[currentAdIndex];
+      // إنشاء وتحميل سكريبت Social Bar الجديد
+      const newScript = document.createElement('script');
+      newScript.id = 'active-social-bar';
+      newScript.setAttribute('data-cfasync', 'false');
+      newScript.src = socialBarScripts[currentScriptIndex];
 
-      const iframe = document.createElement('iframe');
-      iframe.width = "320";
-      iframe.height = "50";
-      iframe.style.border = "none";
-      iframe.style.overflow = "hidden";
-      iframe.scrolling = "no";
+      document.body.appendChild(newScript);
 
-      const iframeContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <style>body{margin:0;padding:0;overflow:hidden;background:transparent;display:flex;justify-content:center;align-items:center;}</style>
-        </head>
-        <body>
-          <script type="text/javascript">
-            atOptions = {
-              'key' : '${currentAd.key}',
-              'format' : 'iframe',
-              'height' : 50,
-              'width' : 320,
-              'params' : {}
-            };
-          <\/script>
-          <script type="text/javascript" src="${currentAd.src}"><\/script>
-        </body>
-        </html>
-      `;
-
-      iframe.srcdoc = iframeContent;
-      adSlot.appendChild(iframe);
-
-      // الانتقال للوحدة الإعلانية التالية بانتظام
-      currentAdIndex = (currentAdIndex + 1) % adNetworks.length;
+      // الانتقال للوحدة التالية بالترتيب
+      currentScriptIndex = (currentScriptIndex + 1) % socialBarScripts.length;
     }
 
-    // التشغيل المبدئي والتبديل كل 12 ثانية
-    setTimeout(() => {
-      loadNextAd();
-      setInterval(loadNextAd, 12000); // 12000 ملي ثانية = 12 ثانية
-    }, 1000);
+    // التشغيل الأول والتبديل التلقائي كل 12 ثانية
+    rotateSocialBar();
+    setInterval(rotateSocialBar, 12000); // 12000 ملي ثانية = 12 ثانية
   </script>
 
 </body>
