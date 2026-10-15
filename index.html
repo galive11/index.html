@@ -142,7 +142,7 @@
 
   <div class="app-wrapper">
     
-    <!-- 1. حاوية الإعلانات العلوية -->
+    <!-- 1. حاوية الإعلانات العلوية الآمنة -->
     <div class="ad-top-dock" id="ad-container"></div>
 
     <!-- 2. منطقة البث المباشر (في الوسط) -->
@@ -180,3 +180,59 @@
       
       if (input.value.trim() !== "") {
         const bubble = document.createElement("div");
+        bubble.className = "chat-bubble";
+        bubble.innerHTML = `<strong>أنت:</strong> ${input.value}`;
+        chatBox.appendChild(bubble);
+        input.value = "";
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    }
+
+    document.getElementById("messageInput").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    });
+
+    // --- كود تدوير الإعلانات النظيف والمستقر ---
+    const adUnits = [
+      "https://bicea.org/14/9f627e7fa7f8974baffcaf9fe5e7dacd",
+      "https://bicea.org/14/8718adffd4a541a5e96ca6954e7a4268",
+      "https://bicea.org/14/c92568ab59a4638ccc40ccd7f11c756b",
+      "https://bicea.org/14/39e0cd3e099ddf4a97307fef2553d0c9",
+      "https://bicea.org/14/664c4c28023577c68e9439b9764e7610",
+      "https://bicea.org/14/c186556d45572439809220145be80276"
+    ];
+
+    let currentIndex = 0;
+
+    function rotateAds() {
+      const container = document.getElementById("ad-container");
+      if (!container) return;
+
+      // 1. تفريغ الحاوية بشكل كامل وآمن من أي سكريبت أو عناصر سابقة
+      container.innerHTML = "";
+
+      // 2. إنشاء عنصر script جديد كلياً
+      const script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src = adUnits[currentIndex];
+      script.async = true;
+      script.setAttribute("data-cfasync", "false");
+
+      // 3. حقن السكريبت داخل الحاوية المخصصة
+      container.appendChild(script);
+
+      // 4. الانتقال للوحدة الإعلانية التالية في الدورة
+      currentIndex = (currentIndex + 1) % adUnits.length;
+    }
+
+    // تشغيل أول إعلان فور تحميل الصفحة
+    window.addEventListener('load', rotateAds);
+
+    // تدوير الإعلانات تلقائياً كل 20 ثانية
+    setInterval(rotateAds, 20000);
+  </script>
+
+</body>
+</html>
