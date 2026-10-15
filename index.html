@@ -21,7 +21,7 @@
       color: #fff;
     }
 
-    /* الحاوية الرئيسية بتنسيق عمودي يملأ الشاشة */
+    /* الحاوية الرئيسية تشغل كامل الشاشة بنظام Flex عمودي صارم */
     .app-wrapper {
       display: flex;
       flex-direction: column;
@@ -44,20 +44,25 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* 2. منطقة البث المباشر في منتصف الشاشة */
+    /* مساحة مرنة علوية لدفع البث نحو منتصف الشاشة تماماً */
+    .spacer-top {
+      flex: 1;
+    }
+
+    /* 2. منطقة البث المباشر (في منتصف الشاشة) */
     .stream-container {
       flex: 0 0 auto;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 12px 10px;
+      padding: 5px 10px;
       background-color: #000;
     }
 
     .stream-content-box {
       width: 100%;
-      max-width: 420px;
+      max-width: 480px;
       aspect-ratio: 16 / 9;
       background-color: #000;
       border-radius: 8px;
@@ -75,23 +80,20 @@
       border: none;
     }
 
-    /* 3. صندوق التعليقات - بحجم صغير ومرتب في المساحة المتبقية */
+    /* 3. صندوق التعليقات المصغر تحت البث مباشرة */
     .chat-container {
-      flex: 1 1 auto;
+      flex: 0 0 110px;
       width: 100%;
-      max-height: 150px;
       overflow-y: auto;
-      padding: 8px 12px;
+      padding: 6px 12px;
       display: flex;
       flex-direction: column;
       gap: 6px;
-      background-color: #050505;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background-color: #000;
     }
 
     .chat-bubble {
-      background-color: rgba(255, 255, 255, 0.08);
+      background-color: rgba(255, 255, 255, 0.1);
       padding: 6px 10px;
       border-radius: 6px;
       font-size: 12px;
@@ -100,7 +102,12 @@
       word-break: break-word;
     }
 
-    /* 4. شريط الكتابة والإرسال - مثبت بدقة في أسفل الشاشة */
+    /* مساحة مرنة سفلية لضبط التوازن */
+    .spacer-bottom {
+      flex: 1;
+    }
+
+    /* 4. بار الكتابة والإرسال (مثبت بدقة في أقصى أسفل الشاشة) */
     .input-bar {
       flex: 0 0 auto;
       width: 100%;
@@ -111,6 +118,7 @@
       align-items: center;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
       padding-bottom: max(12px, env(safe-area-inset-bottom));
+      z-index: 20;
     }
 
     .input-bar input {
@@ -147,7 +155,9 @@
     <!-- 1. حاوية الإعلانات العلوية -->
     <div class="ad-top-dock" id="ad-container"></div>
 
-    <!-- 2. منطقة البث المباشر (في الوسط) -->
+    <div class="spacer-top"></div>
+
+    <!-- 2. منطقة البث المباشر (تتوسط الشاشة) -->
     <div class="stream-container">
       <div class="stream-content-box">
         <iframe 
@@ -160,7 +170,9 @@
     <!-- 3. صندوق التعليقات المصغر -->
     <div class="chat-container" id="chatBox"></div>
 
-    <!-- 4. بار الكتابة والإرسال المثبت بالأسفل -->
+    <div class="spacer-bottom"></div>
+
+    <!-- 4. بار الكتابة والإرسال (في أقصى أسفل الشاشة تماماً) -->
     <div class="input-bar">
       <input type="text" id="messageInput" placeholder="اكتب تعليقاً...">
       <button onclick="sendMessage()">إرسال</button>
