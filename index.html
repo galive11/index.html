@@ -34,7 +34,7 @@
     .ad-top-dock {
       flex: 0 0 auto;
       width: 100%;
-      min-height: 70px;
+      min-height: 75px;
       background-color: rgba(255, 255, 255, 0.05);
       display: flex;
       align-items: center;
@@ -44,14 +44,14 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* 2. منطقة البث المباشر - حجم متناسب للشاشات الطولية */
+    /* 2. منطقة البث المباشر - حجم متناسب */
     .stream-container {
       flex: 0 0 auto;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 5px 10px;
+      padding: 8px 10px;
       background-color: #000;
     }
 
@@ -76,7 +76,7 @@
       border: none;
     }
 
-    /* 3. منطقة التعليقات - تستوعب المساحة المتبقية فقط */
+    /* 3. منطقة التعليقات - فارغة ونظيفة لتستقبل تعليقات المستخدمين الحقيقيين فقط */
     .chat-container {
       flex: 1 1 auto;
       width: 100%;
@@ -96,9 +96,10 @@
       font-size: 13px;
       max-width: 85%;
       align-self: flex-start;
+      word-break: break-word;
     }
 
-    /* 4. بار الكتابة والإرسال - مثبت بالأسفل بشكل مضمون */
+    /* 4. بار الكتابة والإرسال - مثبت بالأسفل بشكل مرتب وعصري */
     .input-bar {
       flex: 0 0 auto;
       width: 100%;
@@ -155,11 +156,8 @@
       </div>
     </div>
 
-    <!-- 3. منطقة التعليقات -->
-    <div class="chat-container" id="chatBox">
-      <div class="chat-bubble"><strong>علي:</strong> منورين الشباب، أحلى بث!</div>
-      <div class="chat-bubble"><strong>محمد:</strong> الصوت والصورة كلش واضحين</div>
-    </div>
+    <!-- 3. منطقة التعليقات (فارغة ونظيفة وجاهزة لتعليقات الزوار الحقيقيين) -->
+    <div class="chat-container" id="chatBox"></div>
 
     <!-- 4. بار الكتابة والإرسال -->
     <div class="input-bar">
