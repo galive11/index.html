@@ -6,7 +6,7 @@
   <title>بثوث مباشرة جيلوكا</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    /* إزالة الهوامش الافتراضية وتثبيت الشاشة بالكامل */
+    /* إزالة الهوامش وتثبيت الشاشة بالكامل */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -29,17 +29,22 @@
       width: 100vw;
     }
 
-    /* 1. قسم مشغل البث المباشر (أبعاد 16:9 في الأعلى) */
+    /* 1. قسم مشغل تويتش (مصغر ومزاح للأسفل قليلاً لضمان عدم تغطيته بالإعلانات) */
     .stream-container {
       flex: 0 0 auto;
       width: 100%;
       aspect-ratio: 16 / 9;
       background-color: #000000;
+      padding: 12px 16px 4px 16px; /* مساحة أمان علوية وجانبية */
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .stream-container iframe {
       width: 100%;
       height: 100%;
+      border-radius: 10px;
       border: none;
     }
 
@@ -63,7 +68,43 @@
       max-width: 85%;
     }
 
-    /* 3. شريط الإعلان السفلي الثابت (مساحة مخصصة وآمنة) */
+    /* 3. خانة كتابة التعليقات (فوق شريط الإعلانات مباشرة) */
+    .chat-input-bar {
+      flex: 0 0 50px;
+      background-color: #1e1e1e;
+      display: flex;
+      align-items: center;
+      padding: 8px 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .chat-input-bar input {
+      flex: 1;
+      background-color: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .chat-input-bar input::placeholder {
+      color: #888;
+    }
+
+    .chat-input-bar button {
+      background-color: #9146FF; /* لون تويتش المميز */
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0 15px;
+      margin-right: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    /* 4. شريط الإعلان السفلي الثابت (مساحة مخصصة وآمنة للـ Social Bar) */
     .ad-zone-dock {
       flex: 0 0 75px;
       width: 100%;
@@ -81,9 +122,9 @@
 
   <div class="app-wrapper">
     
-    <!-- 1. شاشة البث المباشر -->
+    <!-- 1. شاشة البث المباشر لقناة 1stremer_1 -->
     <div class="stream-container">
-      <iframe src="https://www.youtube.com/embed/LIVE_STREAM_ID" allowfullscreen></iframe>
+      <iframe src="https://player.twitch.tv/?channel=1stremer_1&parent=galive11.github.io" allowfullscreen></iframe>
     </div>
 
     <!-- 2. قسم الشات والتفاعل -->
@@ -92,12 +133,33 @@
       <div class="chat-bubble"><strong>محمد:</strong> الصوت والصورة كلش واضحين</div>
     </div>
 
-    <!-- 3. حاوية الإعلان السفلي (يتم تدوير الوحدات الـ 6 فيها تلقائياً) -->
+    <!-- 3. خانة كتابة التعليق -->
+    <div class="chat-input-bar">
+      <input type="text" id="messageInput" placeholder="اكتب تعليقاً...">
+      <button onclick="sendMessage()">إرسال</button>
+    </div>
+
+    <!-- 4. حاوية الإعلان السفلي (تتغير الوحدات الـ 6 فيها آلياً كل 20 ثانية) -->
     <div class="ad-zone-dock" id="ad-container"></div>
 
   </div>
 
   <script>
+    // دالة إرسال التعليق محلياً
+    function sendMessage() {
+      const input = document.getElementById("messageInput");
+      const chatBox = document.getElementById("chatBox");
+      
+      if (input.value.trim() !== "") {
+        const bubble = document.createElement("div");
+        bubble.className = "chat-bubble";
+        bubble.innerHTML = `<strong>أنت:</strong> ${input.value}`;
+        chatBox.appendChild(bubble);
+        input.value = "";
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    }
+
     // روابط الـ 6 وحدات Social Bar المستقلة
     const adUnits = [
       "https://bicea.org/14/9f627e7fa7f8974baffcaf9fe5e7dacd",
@@ -115,7 +177,7 @@
       
       if (!container) return;
 
-      // أ) تنظيف الحاوية وحذف السكريبت القديم نهائياً من الـ DOM لمنع تراكم الذاكرة
+      // أ) تنظيف الحاوية وحذف السكريبت القديم نهائياً من الـ DOM
       while (container.firstChild) {
         container.removeChild(container.firstChild);
       }
@@ -137,7 +199,7 @@
     // تشغيل أول وحدة فور فتح التطبيق
     rotateSocialBar();
 
-    // التبديل الدقيق والمنتظم كل 20 ثانية لتكتمل الدورة في دقيقتين (20,000 مللي ثانية)
+    // التبديل الدقيق والمنتظم كل 20 ثانية لتكتمل الدورة في دقيقتين
     setInterval(rotateSocialBar, 20000);
   </script>
 
