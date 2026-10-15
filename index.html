@@ -2,111 +2,143 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>بثوث مباشرة جيلوكا</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body, html { width: 100%; height: 100%; background-color: #0d0f12; overflow: hidden; display: flex; flex-direction: column; font-family: system-ui, -apple-system, sans-serif; }
-
-    /* مشغل البث (Twitch Player) */
-    #player-container {
-      width: 100%;
-      height: 40vh;
-      position: relative;
-      background: #000;
-      flex-shrink: 0;
+    /* إزالة الهوامش الافتراضية وتثبيت الشاشة بالكامل */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    /* حاوية الدردشة المباشرة (Twitch Chat) */
-    #chat-container {
-      flex: 1;
+    body, html {
+      height: 100%;
       width: 100%;
-      background: #181a20;
-      border-top: 1px solid #2b2f3a;
       overflow: hidden;
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #121212;
     }
 
-    iframe {
+    /* الحاوية الرئيسية لتقسيم الشاشة عمودياً */
+    .app-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* 1. قسم مشغل البث المباشر (أبعاد 16:9 في الأعلى) */
+    .stream-container {
+      flex: 0 0 auto;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background-color: #000000;
+    }
+
+    .stream-container iframe {
       width: 100%;
       height: 100%;
       border: none;
+    }
+
+    /* 2. قسم الشات والتعليقات (في الوسط مع تمرير داخلي) */
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background-color: #1a1a1a;
+    }
+
+    .chat-bubble {
+      background-color: rgba(255, 255, 255, 0.07);
+      padding: 8px 12px;
+      border-radius: 8px;
+      color: #ffffff;
+      font-size: 13px;
+      max-width: 85%;
+    }
+
+    /* 3. شريط الإعلان السفلي الثابت (مساحة مخصصة وآمنة) */
+    .ad-zone-dock {
+      flex: 0 0 75px;
+      width: 100%;
+      background-color: #0f0f0f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 999;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
   </style>
 </head>
 <body>
 
-  <!-- مشغل البث (Twitch Player) -->
-  <div id="player-container">
-    <iframe 
-      id="twitch-player" 
-      allowfullscreen="true" 
-      scrolling="no"
-      allow="autoplay; fullscreen; encrypted-media">
-    </iframe>
-  </div>
+  <div class="app-wrapper">
+    
+    <!-- 1. شاشة البث المباشر -->
+    <div class="stream-container">
+      <iframe src="https://www.youtube.com/embed/LIVE_STREAM_ID" allowfullscreen></iframe>
+    </div>
 
-  <!-- صندوق التعليقات والدردشة المباشرة (Twitch Chat) -->
-  <div id="chat-container">
-    <iframe 
-      id="twitch-chat"
-      scrolling="no">
-    </iframe>
+    <!-- 2. قسم الشات والتفاعل -->
+    <div class="chat-container" id="chatBox">
+      <div class="chat-bubble"><strong>علي:</strong> منورين الشباب، أحلى بث!</div>
+      <div class="chat-bubble"><strong>محمد:</strong> الصوت والصورة كلش واضحين</div>
+    </div>
+
+    <!-- 3. حاوية الإعلان السفلي (يتم تدوير الوحدات الـ 6 فيها تلقائياً) -->
+    <div class="ad-zone-dock" id="ad-container"></div>
+
   </div>
 
   <script>
-    if (window.Telegram && window.Telegram.WebApp) {
-      window.Telegram.WebApp.ready();
-      window.Telegram.WebApp.expand();
-    }
-
-    // إعداد مشغل وتصميم دردشة تويتش
-    const urlParams = new URLSearchParams(window.location.search);
-    const streamer = (urlParams.get('startapp') || urlParams.get('streamer') || '1stremer_1').toLowerCase().trim();
-    
-    // رابط البث مع وضع latency=low لسرعة التشغيل
-    const playerFrame = document.getElementById('twitch-player');
-    playerFrame.src = `https://player.twitch.tv/?channel=${streamer}&parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org&autoplay=true&muted=false&latency=low`;
-
-    // رابط الشات المباشر المربوط بـ Twitch
-    const chatFrame = document.getElementById('twitch-chat');
-    chatFrame.src = `https://www.twitch.tv/embed/${streamer}/chat?parent=galive11.github.io&parent=telegram.org&parent=web.telegram.org&darkpopout`;
-
-    // --- مصفوفة روابط سكريبتات الـ Social Bar لربط الخمس وحدات ---
-    const socialBarScripts = [
-      "https://bicea.org/14/9f627e7fa7f8974baffcaf9fe5e7dacd", // الكود الأول الخاص بك
-      // "ضع رابط الكود الثاني هنا",
-      // "ضع رابط الكود الثالث هنا",
-      // "ضع رابط الكود الرابع هنا",
-      // "ضع رابط الكود الخامس هنا"
+    // روابط الـ 6 وحدات Social Bar المستقلة
+    const adUnits = [
+      "https://bicea.org/14/9f627e7fa7f8974baffcaf9fe5e7dacd",
+      "https://bicea.org/14/8718adffd4a541a5e96ca6954e7a4268",
+      "https://bicea.org/14/c92568ab59a4638ccc40ccd7f11c756b",
+      "https://bicea.org/14/39e0cd3e099ddf4a97307fef2553d0c9",
+      "https://bicea.org/14/664c4c28023577c68e9439b9764e7610",
+      "https://bicea.org/14/c186556d45572439809220145be80276"
     ];
 
-    let currentScriptIndex = 0;
+    let currentIndex = 0;
 
     function rotateSocialBar() {
-      // إزالة سكريبت Social Bar القديم إن وجد
-      const oldScript = document.getElementById('active-social-bar');
-      if (oldScript) {
-        oldScript.remove();
+      const container = document.getElementById("ad-container");
+      
+      if (!container) return;
+
+      // أ) تنظيف الحاوية وحذف السكريبت القديم نهائياً من الـ DOM لمنع تراكم الذاكرة
+      while (container.firstChild) {
+        container.removeChild(container.firstChild);
       }
 
-      // إنشاء وتحميل سكريبت Social Bar الجديد
-      const newScript = document.createElement('script');
-      newScript.id = 'active-social-bar';
-      newScript.setAttribute('data-cfasync', 'false');
-      newScript.src = socialBarScripts[currentScriptIndex];
+      // ب) إنشاء عنصر script جديد كلياً
+      const newScript = document.createElement("script");
+      newScript.type = "text/javascript";
+      newScript.src = adUnits[currentIndex];
+      newScript.async = true;
+      newScript.setAttribute("data-cfasync", "false");
 
-      document.body.appendChild(newScript);
+      // ج) حقن السكريبت الجديد داخل حاوية الشريط السفلي
+      container.appendChild(newScript);
 
-      // الانتقال للوحدة التالية بالترتيب
-      currentScriptIndex = (currentScriptIndex + 1) % socialBarScripts.length;
+      // د) الانتقال للوحدة التالية (والعودة للأولى تلقائياً بعد اكتمال الـ 6 وحدات)
+      currentIndex = (currentIndex + 1) % adUnits.length;
     }
 
-    // التشغيل الأول والتبديل التلقائي كل 12 ثانية
+    // تشغيل أول وحدة فور فتح التطبيق
     rotateSocialBar();
-    setInterval(rotateSocialBar, 12000); // 12000 ملي ثانية = 12 ثانية
+
+    // التبديل الدقيق والمنتظم كل 20 ثانية لتكتمل الدورة في دقيقتين (20,000 مللي ثانية)
+    setInterval(rotateSocialBar, 20000);
   </script>
 
 </body>
