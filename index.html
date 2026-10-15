@@ -2,11 +2,11 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>بثوث مباشرة جيلوكا</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    /* إزالة الهوامش وتثبيت الشاشة بالكامل */
+    /* إزالة الهوامش الافتراضية وثبيت الشاشة */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -16,12 +16,13 @@
     body, html {
       height: 100%;
       width: 100%;
-      overflow: hidden;
-      font-family: system-ui, -apple-system, sans-serif;
-      background-color: #121212;
+      overflow: hidden; /*منع السكرول الرئيسي للصفحة*/
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      background-color: #000; /* خلفية سوداء بالكامل مثل الصورة */
+      color: #fff;
     }
 
-    /* الحاوية الرئيسية لتقسيم الشاشة عمودياً */
+    /* الحاوية الرئيسية بنظام Flex عمودي */
     .app-wrapper {
       display: flex;
       flex-direction: column;
@@ -29,92 +30,113 @@
       width: 100vw;
     }
 
-    /* 1. قسم مشغل تويتش (مصغر ومزاح للأسفل قليلاً لضمان عدم تغطيته بالإعلانات) */
-    .stream-container {
+    /* 1. منطقة الإعلانات في الأعلى (Fixed height) */
+    .ad-top-dock {
       flex: 0 0 auto;
       width: 100%;
-      aspect-ratio: 16 / 9;
-      background-color: #000000;
-      padding: 12px 16px 4px 16px; /* مساحة أمان علوية وجانبية */
+      min-height: 80px; /* الارتفاع الأدنى لمكان الإعلان */
+      background-color: rgba(255, 255, 255, 0.05); /* خلفية باهتة جداً لتحديد المكان */
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 10;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .stream-container iframe {
+    /* 2. منطقة البث المباشر - في الوسط (Flex Grow) */
+    .stream-container {
+      flex: 1 1 auto; /* تأخذ باقي المساحة المتوفرة */
+      width: 100%;
+      display: flex;
+      align-items: center; /* توسيط عمودي */
+      justify-content: center; /* توسيط أفقي */
+      padding: 20px; /* مسافة أمان حول اللايف */
+      background-color: #000;
+    }
+
+    /* تنسيق مستطيل شاشة اللايف (الأسود في الصورة الثانية) */
+    .stream-content-box {
+      width: 100%;
+      max-width: 600px; /* أقصى عرض على الشاشات الكبيرة */
+      aspect-ratio: 16 / 9; /* الحفاظ على أبعاد الفيديو */
+      background-color: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .stream-content-box iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
-      border-radius: 10px;
       border: none;
     }
 
-    /* 2. قسم الشات والتعليقات (في الوسط مع تمرير داخلي) */
+    /* 3. منطقة التعليقات - أسفل اللايف (Short height) */
     .chat-container {
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px;
+      flex: 0 0 25%; /* تحديد ارتفاع منطقة التعليقات بـ 25% من الشاشة (أقصر) */
+      width: 100%;
+      overflow-y: auto; /* سكرول للتعليقات فقط */
+      padding: 15px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      background-color: #1a1a1a;
+      gap: 10px;
+      background-color: #000; /* الحفاظ على الخلفية السوداء */
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
+    /* شكل فقاعة التعليق مثل الصورة */
     .chat-bubble {
-      background-color: rgba(255, 255, 255, 0.07);
-      padding: 8px 12px;
-      border-radius: 8px;
-      color: #ffffff;
-      font-size: 13px;
-      max-width: 85%;
+      background-color: rgba(255, 255, 255, 0.1); /* رمادي شفاف */
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 14px;
+      max-width: 90%;
+      align-self: flex-start; /* محاذاة لليمين بما أن الاتجاه RTL */
     }
 
-    /* 3. خانة كتابة التعليقات (فوق شريط الإعلانات مباشرة) */
-    .chat-input-bar {
-      flex: 0 0 50px;
-      background-color: #1e1e1e;
+    /* 4. بار الكتابة والإرسال (في الأسفل تماماً) */
+    .input-bar {
+      flex: 0 0 auto;
+      width: 100%;
+      padding: 10px 15px;
+      background-color: #121212;
       display: flex;
+      gap: 10px;
       align-items: center;
-      padding: 8px 10px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: calc(10px + env(safe-area-inset-bottom)); /* دعم آيفون */
     }
 
-    .chat-input-bar input {
+    .input-bar input {
       flex: 1;
-      background-color: #2a2a2a;
-      border: 1px solid #444;
-      border-radius: 6px;
-      padding: 8px 12px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 10px 15px;
       color: #fff;
       font-size: 14px;
       outline: none;
     }
 
-    .chat-input-bar input::placeholder {
-      color: #888;
+    .input-bar input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
     }
 
-    .chat-input-bar button {
-      background-color: #9146FF; /* لون تويتش المميز */
-      color: white;
+    /* زر الإرسال بنفسجي مثل الصورة الأولى */
+    .input-bar button {
+      background-color: #6c5ce7; 
+      color: #fff;
       border: none;
-      border-radius: 6px;
-      padding: 0 15px;
-      margin-right: 8px;
+      border-radius: 20px;
+      padding: 10px 20px;
+      font-size: 14px;
       font-weight: bold;
       cursor: pointer;
-    }
-
-    /* 4. شريط الإعلان السفلي الثابت (مساحة مخصصة وآمنة للـ Social Bar) */
-    .ad-zone-dock {
-      flex: 0 0 75px;
-      width: 100%;
-      background-color: #0f0f0f;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      z-index: 999;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
   </style>
 </head>
@@ -122,45 +144,74 @@
 
   <div class="app-wrapper">
     
-    <!-- 1. شاشة البث المباشر لقناة 1stremer_1 -->
-    <div class="stream-container">
-      <iframe src="https://player.twitch.tv/?channel=1stremer_1&parent=galive11.github.io" allowfullscreen></iframe>
+    <!-- 1. حاوية الإعلانات العلوية - (فوق شاشة البث) -->
+    <div class="ad-top-dock" id="ad-container">
+      <!-- الإعلانات ستظهر هنا وستدور تلقائياً -->
     </div>
 
-    <!-- 2. قسم الشات والتفاعل -->
+    <!-- 2. منطقة البث المباشر (في الوسط) -->
+    <div class="stream-container">
+      <div class="stream-content-box">
+        <!-- مشغل تويتش الخاص بك -->
+        <iframe 
+          src="https://player.twitch.tv/?channel=1stremer_1&parent=galive11.github.io" 
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+
+    <!-- 3. منطقة التعليقات (قصيرة وأسفل اللايف) -->
     <div class="chat-container" id="chatBox">
       <div class="chat-bubble"><strong>علي:</strong> منورين الشباب، أحلى بث!</div>
       <div class="chat-bubble"><strong>محمد:</strong> الصوت والصورة كلش واضحين</div>
+      <!-- التعليقات الجديدة ستضاف هنا -->
     </div>
 
-    <!-- 3. خانة كتابة التعليق -->
-    <div class="chat-input-bar">
+    <!-- 4. بار الكتابة -->
+    <div class="input-bar">
       <input type="text" id="messageInput" placeholder="اكتب تعليقاً...">
       <button onclick="sendMessage()">إرسال</button>
     </div>
 
-    <!-- 4. حاوية الإعلان السفلي (تتغير الوحدات الـ 6 فيها آلياً كل 20 ثانية) -->
-    <div class="ad-zone-dock" id="ad-container"></div>
-
   </div>
 
   <script>
-    // دالة إرسال التعليق محلياً
+    // تفعيل Telegram WebApp
+    const tele = window.Telegram.WebApp;
+    tele.ready();
+    tele.expand(); // توسيع التطبيق ليشمل كامل الشاشة
+
+    // دالة إرسال التعليق (تجريبية محلياً)
     function sendMessage() {
       const input = document.getElementById("messageInput");
       const chatBox = document.getElementById("chatBox");
       
       if (input.value.trim() !== "") {
+        // إنشاء فقاعة تعليق جديدة
         const bubble = document.createElement("div");
         bubble.className = "chat-bubble";
         bubble.innerHTML = `<strong>أنت:</strong> ${input.value}`;
+        
+        // إضافة التعليق
         chatBox.appendChild(bubble);
+        
+        // مسح المدخلات
         input.value = "";
+        
+        // سكرول لأسفل تلقائياً
         chatBox.scrollTop = chatBox.scrollHeight;
       }
     }
 
-    // روابط الـ 6 وحدات Social Bar المستقلة
+    // السماح بالإرسال عبر زر Enter في الكيبورد
+    document.getElementById("messageInput").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    });
+
+    // --- كود تدوير الإعلانات (المُصحح) ---
+    // روابط الوحدات الـ 6 الخاصة بك
     const adUnits = [
       "https://bicea.org/14/9f627e7fa7f8974baffcaf9fe5e7dacd",
       "https://bicea.org/14/8718adffd4a541a5e96ca6954e7a4268",
@@ -172,35 +223,35 @@
 
     let currentIndex = 0;
 
-    function rotateSocialBar() {
+    function rotateAds() {
       const container = document.getElementById("ad-container");
-      
       if (!container) return;
 
-      // أ) تنظيف الحاوية وحذف السكريبت القديم نهائياً من الـ DOM
-      while (container.firstChild) {
-        container.removeChild(container.firstChild);
-      }
+      // 1. تنظيف الحاوية تماماً
+      container.innerHTML = "";
 
-      // ب) إنشاء عنصر script جديد كلياً
-      const newScript = document.createElement("script");
-      newScript.type = "text/javascript";
-      newScript.src = adUnits[currentIndex];
-      newScript.async = true;
-      newScript.setAttribute("data-cfasync", "false");
+      // 2. إنشاء عنصر script جديد للوحدة الحالية
+      const script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src = adUnits[currentIndex];
+      script.async = true; // تحميل غير متزامن لعدم حجب تحميل الصفحة
+      script.setAttribute("data-cfasync", "false"); // خاص بـ Cloudflare إذا وُجد
 
-      // ج) حقن السكريبت الجديد داخل حاوية الشريط السفلي
-      container.appendChild(newScript);
+      // 3. إضافة السكريبت للحاوية
+      container.appendChild(script);
 
-      // د) الانتقال للوحدة التالية (والعودة للأولى تلقائياً بعد اكتمال الـ 6 وحدات)
+      // 4. تحديث العداد للوحدة التالية (التدوير)
       currentIndex = (currentIndex + 1) % adUnits.length;
+      
+      //console.log("Ad rotated to: " + currentIndex); // للتعقب عند الحاجة
     }
 
-    // تشغيل أول وحدة فور فتح التطبيق
-    rotateSocialBar();
+    // تشغيل أول إعلان فوراً عند التحميل
+    window.addEventListener('load', rotateAds);
 
-    // التبديل الدقيق والمنتظم كل 20 ثانية لتكتمل الدورة في دقيقتين
-    setInterval(rotateSocialBar, 20000);
+    // تدوير الإعلانات كل 20 ثانية (20,000 مللي ثانية)
+    setInterval(rotateAds, 20000);
+
   </script>
 
 </body>
