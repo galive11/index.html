@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>بثوث مباشرة جيلوكا</title>
-  
-  <!-- وسم إثبات الملكية الخاص بـ Clickadu -->
-  <meta name="clckd" content="8c25a48c18b8b8d54f48e9fd6a7a0e1b" />
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
@@ -48,14 +45,14 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* 2. منطقة البث المباشر (تتوسط القسم العلوي) */
+    /* 2. منطقة البث المباشر */
     .stream-container {
       flex: 0 0 auto;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 10px 10px 5px 10px;
+      padding: 25px 10px 10px 10px;
       background-color: #000;
     }
 
@@ -79,7 +76,7 @@
       border: none;
     }
 
-    /* 3. صندوق التعليقات - يأخذ كامل المساحة المتبقية بين البث وشريط الكتابة */
+    /* 3. صندوق التعليقات المصغر */
     .chat-container {
       flex: 1 1 auto;
       width: 100%;
@@ -89,6 +86,7 @@
       flex-direction: column;
       gap: 6px;
       background-color: #000;
+      max-height: 140px;
     }
 
     .chat-bubble {
@@ -101,9 +99,10 @@
       word-break: break-word;
     }
 
-    /* 4. بار الكتابة والإرسال (مثبت بأسفل الشاشة دائماً) */
+    /* 4. حقل كتابة التعليق والإرسال */
     .input-bar {
       flex: 0 0 auto;
+      margin-top: auto;
       width: 100%;
       padding: 10px 12px;
       background-color: #121212;
@@ -111,7 +110,7 @@
       gap: 8px;
       align-items: center;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
-      padding-bottom: max(10px, env(safe-area-inset-bottom));
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
       z-index: 20;
     }
 
@@ -159,7 +158,7 @@
       </div>
     </div>
 
-    <!-- 3. صندوق التعليقات -->
+    <!-- 3. صندوق التعليقات المصغر -->
     <div class="chat-container" id="chatBox"></div>
 
     <!-- 4. بار الكتابة والإرسال -->
