@@ -21,7 +21,6 @@
       color: #fff;
     }
 
-    /* الحاوية الرئيسية لتوزيع العناصر على الشاشة */
     .app-wrapper {
       display: flex;
       flex-direction: column;
@@ -33,8 +32,8 @@
 
     /* 1. حاوية الإعلانات العلوية */
     .ad-top-dock {
+      flex: 0 0 75px;
       width: 100%;
-      height: 75px;
       background-color: rgba(255, 255, 255, 0.05);
       display: flex;
       align-items: center;
@@ -43,19 +42,19 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* 2. منطقة البث (متوسطة الشاشة تماماً كما في الصورة الثانية) */
+    /* 2. منطقة البث (مرفوعة للأعلى بنسبة 10%) */
     .stream-container {
       flex: 1;
       width: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 10px;
+      padding: 5px 10px 45px 10px; /* تم تقليل الهامش العلوي لرفع الشاشة للأعلى */
     }
 
     .stream-content-box {
       width: 100%;
-      max-width: 480px;
+      max-width: 440px;
       aspect-ratio: 16 / 9;
       background-color: #000;
       border-radius: 8px;
@@ -73,10 +72,10 @@
       border: none;
     }
 
-    /* 3. بار الكتابة والإرسال (مثبت بدقة في أقصى أسفل الشاشة) */
+    /* 3. شريط مستطيل الكتابة والإرسال في الأسفل */
     .input-bar {
+      flex: 0 0 60px;
       width: 100%;
-      height: 65px;
       padding: 10px 12px;
       background-color: #121212;
       display: flex;
@@ -121,7 +120,7 @@
     <!-- 1. حاوية الإعلانات العلوية -->
     <div class="ad-top-dock" id="ad-container"></div>
 
-    <!-- 2. شاشة البث المباشر (تتوسط الشاشة بدون صندوق تعليقات) -->
+    <!-- 2. منطقة البث (مرفوعة للأعلى) -->
     <div class="stream-container">
       <div class="stream-content-box">
         <iframe 
@@ -131,7 +130,7 @@
       </div>
     </div>
 
-    <!-- 3. بار الكتابة والإرسال في الأسفل تماماً -->
+    <!-- 3. مستطيل الكتابة والإرسال -->
     <div class="input-bar">
       <input type="text" id="messageInput" placeholder="اكتب تعليقاً...">
       <button onclick="sendMessage()">إرسال</button>
@@ -147,7 +146,6 @@
     function sendMessage() {
       const input = document.getElementById("messageInput");
       if (input.value.trim() !== "") {
-        // يمكنك ربط دالة الإرسال لاحقاً بما يناسب مشروعك
         input.value = "";
       }
     }
@@ -158,7 +156,7 @@
       }
     });
 
-    // --- كود تدوير الإعلانات المستقر ---
+    // --- كود تدوير الإعلانات ---
     const adUnits = [
       "https://bicea.org/14/9f627e7fa7f8974baffcaf9fe5e7dacd",
       "https://bicea.org/14/8718adffd4a541a5e96ca6954e7a4268",
