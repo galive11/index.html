@@ -3,7 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>بثوث مباشرة جيلوكا</title>
+  <title id="pageTitle">بثوث مباشرة جيلوكا</title>
+  
+  <!-- 🖼️ وسوم المعاينة الديناميكية (تتغير تلقائياً حسب اللعبة والستريمر) -->
+  <meta property="og:title" id="ogTitle" content="🔴 بث مباشر الآن - جيلوكا">
+  <meta property="og:description" id="ogDesc" content="انضم الآن لمشاهدة البث المباشر والتفاعل معنا مباشرة.">
+  <meta property="og:image" id="ogImage" content="https://galive11.github.io/default-banner.jpg">
+  <meta property="og:url" id="ogUrl" content="https://galive11.github.io">
+  <meta property="og:type" content="website">
+
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * {
@@ -32,7 +40,7 @@
 
     /* 1. حاوية الإعلانات العلوية */
     .ad-top-dock {
-      flex: 0 0 75px;
+      flex: 0 0 65px;
       width: 100%;
       background-color: rgba(255, 255, 255, 0.05);
       display: flex;
@@ -42,15 +50,47 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* 2. شاشة البث - تم رفعها للأعلى بنسبة 10% */
+    /* شريط اختيار الستريمر والألعاب */
+    .streamers-bar {
+      width: 100%;
+      display: flex;
+      gap: 6px;
+      padding: 6px 10px;
+      background-color: #080808;
+      overflow-x: auto;
+      white-space: nowrap;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 10;
+    }
+
+    .streamer-btn {
+      background-color: #222;
+      color: #aaa;
+      border: 1px solid #444;
+      padding: 5px 10px;
+      border-radius: 14px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .streamer-btn.active {
+      background-color: #6c5ce7;
+      color: #fff;
+      border-color: #6c5ce7;
+      font-weight: bold;
+    }
+
+    /* 2. شاشة البث */
     .stream-container {
       flex: 1;
       width: 100%;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       padding: 0 10px;
-      transform: translateY(-10%); /* رفع البث للأعلى بنسبة 10% */
+      transform: translateY(-5%);
     }
 
     .stream-content-box {
@@ -73,7 +113,23 @@
       border: none;
     }
 
-    /* 3. منطقة التعليقات ومستطيل الكتابة (تم تصغير المساحة 50%) */
+    /* زر مشاركة رابط البث مع صورة اللعبة */
+    .share-stream-btn {
+      margin-top: 10px;
+      background-color: #27ae60;
+      color: #fff;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 15px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* 3. منطقة التعليقات ومستطيل الكتابة */
     .chat-section {
       position: absolute;
       bottom: 0;
@@ -86,17 +142,16 @@
       flex-direction: column;
     }
 
-    /* مكان التعاليق المصغر بنسبة 50% */
     .comments-list {
-      height: 50px; /* تصغير ارتفاع مساحة التعاليق */
+      height: 45px;
       overflow-y: auto;
-      padding: 5px 12px;
+      padding: 4px 12px;
       font-size: 11px;
       color: #ccc;
     }
 
     .comment-item {
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
 
     .comment-item span {
@@ -151,23 +206,27 @@
     <!-- 1. حاوية الإعلانات العلوية -->
     <div class="ad-top-dock" id="ad-container"></div>
 
-    <!-- 2. منطقة البث (مرفوعة للأعلى بنسبة 10%) -->
+    <!-- شريط اختيار الستريمر والألعاب -->
+    <div class="streamers-bar" id="streamersBar"></div>
+
+    <!-- 2. منطقة البث -->
     <div class="stream-container">
       <div class="stream-content-box">
-        <iframe 
-          src="https://player.twitch.tv/?channel=1stremer_1&parent=galive11.github.io" 
-          allowfullscreen>
-        </iframe>
+        <iframe id="streamIframe" src="" allowfullscreen></iframe>
       </div>
+      <!-- زر المشاركة الخاصة بالستريمر الحالي -->
+      <button class="share-stream-btn" onclick="shareCurrentStream()">
+        📤 مشاركة البث (مع صورة اللعبة)
+      </button>
     </div>
 
     <!-- 3. منطقة التعليقات المصغرة وخانة الكتابة -->
     <div class="chat-section">
       <div class="comments-list" id="commentsList">
-        <div class="comment-item"><span>متابع:</span> أهلاً بالجميع في البث!</div>
+        <div class="comment-item"><span>متابع:</span> أهلاً بالجميع في البث المباشر!</div>
       </div>
       <div class="input-bar">
-        <input type="text" id="messageInput" placeholder="اكتب اسم الستريمر أو التعليق...">
+        <input type="text" id="messageInput" placeholder="اكتب تعليقك هنا...">
         <button onclick="handleSend()">إرسال</button>
       </div>
     </div>
@@ -179,8 +238,105 @@
     tele.ready();
     tele.expand();
 
-    // رابط الإعلان المباشر (Direct Link / Smart Link)
-    // استبدل هذا الرابط برابط Direct Link الخاص بك من Adsterra
+    // --- قائمة الستريمرز وروابط الصور الخاصة بكل لعبة ---
+    const streamersList = [
+      { 
+        name: "أحمد (PUBG)", 
+        channel: "1stremer_1", 
+        game: "PUBG Mobile", 
+        image: "https://share.google/PjlmFNc4Xatkc1e9z", // صورة ببجي المرفقة
+        title: "🏆 بث مباشر PUBG Mobile - انضم للبث الآن!" 
+      },
+      { 
+        name: "خالد (CoD MW)", 
+        channel: "2stremer_2", 
+        game: "Call of Duty", 
+        image: "https://share.google/vdjtFIrgdtxkU8bSe", // صورة كود المرفقة
+        title: "🔥 بث مباشر Call of Duty - الأكشن بدأ الآن!" 
+      },
+      { 
+        name: "سعد (PUBG)", 
+        channel: "3stremer_3", 
+        game: "PUBG Mobile", 
+        image: "https://share.google/PjlmFNc4Xatkc1e9z", 
+        title: "🏆 بث مباشر PUBG Mobile - تحديات قوية وحماس!" 
+      },
+      { 
+        name: "فيصل (CoD MW)", 
+        channel: "4stremer_4", 
+        game: "Call of Duty", 
+        image: "https://share.google/vdjtFIrgdtxkU8bSe", 
+        title: "🔥 بث مباشر Call of Duty - معارك نارية مباشرة!" 
+      }
+    ];
+
+    // قراءة الستريمر من الرابط إن وجد
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetChannel = urlParams.get('stream');
+    let activeStreamer = streamersList[0];
+
+    if (targetChannel) {
+      const found = streamersList.find(s => s.channel === targetChannel);
+      if (found) activeStreamer = found;
+    }
+
+    function initPage() {
+      const bar = document.getElementById("streamersBar");
+      bar.innerHTML = "";
+
+      streamersList.forEach((streamer) => {
+        const btn = document.createElement("button");
+        btn.className = `streamer-btn ${streamer.channel === activeStreamer.channel ? 'active' : ''}`;
+        btn.innerText = streamer.name;
+        btn.onclick = () => {
+          const newUrl = `${window.location.pathname}?stream=${streamer.channel}`;
+          window.history.pushState({path: newUrl}, '', newUrl);
+          activeStreamer = streamer;
+          updateStreamView();
+        };
+        bar.appendChild(btn);
+      });
+
+      updateStreamView();
+    }
+
+    function updateStreamView() {
+      const iframe = document.getElementById("streamIframe");
+      iframe.src = `https://player.twitch.tv/?channel=${activeStreamer.channel}&parent=galive11.github.io`;
+
+      // تحديث وسوم المعاينة (Open Graph) ديناميكياً لتطابق اللعبة الحالية
+      document.getElementById("ogTitle").setAttribute("content", activeStreamer.title);
+      document.getElementById("ogImage").setAttribute("content", activeStreamer.image);
+      document.getElementById("ogDesc").setAttribute("content", `🔴 البث شغال الآن مع ${activeStreamer.name}! انضم وشاهد اللعب المباشر.`);
+      document.getElementById("pageTitle").innerText = activeStreamer.title;
+
+      document.querySelectorAll('.streamer-btn').forEach(b => {
+        if(b.innerText.includes(activeStreamer.name)) {
+          b.classList.add('active');
+        } else {
+          b.classList.remove('active');
+        }
+      });
+    }
+
+    // وظيفة مشاركة رابط البث مع صورة اللعبة والعنوان
+    function shareCurrentStream() {
+      const currentLink = `${window.location.origin}${window.location.pathname}?stream=${activeStreamer.channel}`;
+      let shareText = `🔴 ${activeStreamer.title}\nانضم للبث المباشر الآن وتفاعل معنا هنا 👇\n${currentLink}`;
+
+      if (navigator.share) {
+        navigator.share({
+          title: activeStreamer.title,
+          text: shareText,
+          url: currentLink,
+        }).catch((error) => console.log('خطأ في المشاركة', error));
+      } else {
+        navigator.clipboard.writeText(shareText);
+        alert("تم نسخ رابط البث الخاص باللعبة مع رسالة المشاركة! انشره في الجروب الآن 🔥");
+      }
+    }
+
+    // رابط الإعلان المباشر
     const DIRECT_AD_LINK = "https://www.highrevenuegate.com/YOUR_DIRECT_LINK_ID";
     let hasClickedAd = false;
 
@@ -189,13 +345,11 @@
       const text = input.value.trim();
       
       if (text !== "") {
-        // إذا لم ينقر المستخدم على الإعلان من قبل، نفتح الإعلان المباشر مرة واحدة فقط لعدم الإزعاج
         if (!hasClickedAd && DIRECT_AD_LINK.includes("http")) {
           window.open(DIRECT_AD_LINK, '_blank');
-          hasClickedAd = true; // تثبيت أنه فتح الإعلان ولن يزعجه مرة أخرى
+          hasClickedAd = true;
         }
 
-        // إضافة التعليق للشاشة
         const commentsList = document.getElementById("commentsList");
         const newComment = document.createElement("div");
         newComment.className = "comment-item";
@@ -242,9 +396,12 @@
       currentIndex = (currentIndex + 1) % adUnits.length;
     }
 
-    window.addEventListener('load', rotateAds);
+    window.addEventListener('load', () => {
+      initPage();
+      rotateAds();
+    });
     setInterval(rotateAds, 20000);
   </script>
 
 </body>
-</html>
+  </html>
